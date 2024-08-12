@@ -1,5 +1,5 @@
-import mongoose from "mongoose"
-import { IPermissions } from "./rolePermissions.interface"
+import mongoose from 'mongoose'
+import { IPermissions } from './rolePermissions.interface'
 
 const RolePermissionsSchema = new mongoose.Schema<IPermissions>(
   {
@@ -10,7 +10,6 @@ const RolePermissionsSchema = new mongoose.Schema<IPermissions>(
   { timestamps: true, versionKey: false },
 )
 
-const RolePermissions = mongoose.model<IPermissions>("rolepermissions", RolePermissionsSchema)
+const RolePermissions = mongoose.model<IPermissions>('rolepermissions', RolePermissionsSchema)
 
 export default RolePermissions
-

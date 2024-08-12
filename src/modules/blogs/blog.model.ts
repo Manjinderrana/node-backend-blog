@@ -20,12 +20,13 @@ const blogSchema = new mongoose.Schema<IBlog>(
     },
     members: [
       {
-        memberId: { type: mongoose.Schema.Types.ObjectId, ref: "users" },
-        role: { type: String, enum: ["ADMIN", "USER", "MAINTAINER", "GUEST"] },
+        memberId: { type: mongoose.Schema.Types.ObjectId, ref: 'users' },
+        role: { type: String, enum: ['ADMIN', 'USER', 'MAINTAINER', 'GUEST'] },
       },
     ],
     author: {
-       type: mongoose.Schema.Types.ObjectId, ref: 'users' ,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'users',
     },
     isDeleted: {
       type: Boolean,
@@ -34,9 +35,9 @@ const blogSchema = new mongoose.Schema<IBlog>(
     isRead: {
       type: Boolean,
       default: false,
-    }
+    },
   },
-  { timestamps: true, versionKey: false  },
+  { timestamps: true, versionKey: false },
 )
 
 const Blog = mongoose.model<IBlog>('Blog', blogSchema)

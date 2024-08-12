@@ -8,16 +8,16 @@ export interface IUser {
   _id: ObjectId | string
   username: string | string
   email: string
-  avatar: String,
+  avatar: String
   password: string
   refreshToken: string
   otp: string
   otp_expiration: Date
   role: string
-  blogs: blog []
+  blogs: blog[]
   isVerified: boolean
   watchLater: (ObjectId | string)[]
-  watchHistory: (ObjectId | string) []
+  watchHistory: (ObjectId | string)[]
 }
 
 export interface options {

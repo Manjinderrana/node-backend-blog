@@ -14,7 +14,7 @@ export interface IBlog {
   isDeleted: boolean | { $ne: true }
   isRead: boolean
   role: string
-  members: member []
+  members: member[]
   Date: number
 }
 
@@ -34,4 +34,3 @@ export interface UpdateQuery {
   $pull?: Record<string, any>
   [key: string]: any
 }
-

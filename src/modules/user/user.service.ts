@@ -1,4 +1,4 @@
-import {User} from './user.model'
+import { User } from './user.model'
 import { IUser, options } from './user.interface'
 import { PipelineStage } from 'mongoose'
 
@@ -23,11 +23,10 @@ export const aggregate = async (query: PipelineStage[]) => {
 }
 
 export const find = async (searchQuery: customInterface, projection: string) => {
-  return await User.find(searchQuery ,projection)
+  return await User.find(searchQuery, projection)
   // .populate("blogs")
 }
 
 export interface customInterface {
   [key: string]: any
 }
-

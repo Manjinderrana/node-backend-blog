@@ -4,7 +4,7 @@ services:
   app:
     build: .
     ports:
-      - "1026:3000"
+      - '1026:3000'
     environment:
       - DATABASE_URL=mongodb://mongo:27017/mydatabase
     depends_on:
@@ -13,4 +13,4 @@ services:
   mongo:
     image: mongo
     ports:
-      - "27017:27017"
+      - '27017:27017'

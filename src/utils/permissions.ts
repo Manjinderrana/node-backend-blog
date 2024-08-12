@@ -1,85 +1,84 @@
 const LEVEL_TYPES = {
-    BLOG: "BLOG",
-  }
-  
-  export const ALL_PERMISSIONS = {
+  BLOG: 'BLOG',
+}
 
-   USER_PERMISSIONS : [
+export const ALL_PERMISSIONS = {
+  USER_PERMISSIONS: [
     {
-      TYPE: "BLOG",
-      PERMISSION: "CREATE",
+      TYPE: 'BLOG',
+      PERMISSION: 'CREATE',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "EDIT_OWN_BLOG",
+      TYPE: 'BLOG',
+      PERMISSION: 'EDIT_OWN_BLOG',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "USER_MANAGEMENT",
-      PERMISSION: "VIEW",
+      TYPE: 'USER_MANAGEMENT',
+      PERMISSION: 'VIEW',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "EDIT_OWN_BLOG",
+      TYPE: 'BLOG',
+      PERMISSION: 'EDIT_OWN_BLOG',
       LEVEL: LEVEL_TYPES.BLOG,
     },
   ],
 
-  MAINTAINER_PERMISSIONS : [
+  MAINTAINER_PERMISSIONS: [
     {
-      TYPE: "BLOG",
-      PERMISSION: "CREATE",
+      TYPE: 'BLOG',
+      PERMISSION: 'CREATE',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "EDIT_OWN_BLOG",
+      TYPE: 'BLOG',
+      PERMISSION: 'EDIT_OWN_BLOG',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "USER_MANAGEMENT",
-      PERMISSION: "VIEW",
+      TYPE: 'USER_MANAGEMENT',
+      PERMISSION: 'VIEW',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "EDIT_OWN_BLOG",
+      TYPE: 'BLOG',
+      PERMISSION: 'EDIT_OWN_BLOG',
       LEVEL: LEVEL_TYPES.BLOG,
     },
   ],
 
-  ADMIN_PERMISSIONS : [
+  ADMIN_PERMISSIONS: [
     {
-      TYPE: "BLOG",
-      PERMISSION: "CREATE",
+      TYPE: 'BLOG',
+      PERMISSION: 'CREATE',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "EDIT_ANY_BLOG",
+      TYPE: 'BLOG',
+      PERMISSION: 'EDIT_ANY_BLOG',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "VIEW_ALL_BLOGS",
+      TYPE: 'BLOG',
+      PERMISSION: 'VIEW_ALL_BLOGS',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "USER_MANAGEMENT",
-      PERMISSION: "VIEW",
+      TYPE: 'USER_MANAGEMENT',
+      PERMISSION: 'VIEW',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "USER_MANAGEMENT",
-      PERMISSION: "EDIT",
+      TYPE: 'USER_MANAGEMENT',
+      PERMISSION: 'EDIT',
       LEVEL: LEVEL_TYPES.BLOG,
     },
     {
-      TYPE: "BLOG",
-      PERMISSION: "DELETE_ANY_BLOG",
+      TYPE: 'BLOG',
+      PERMISSION: 'DELETE_ANY_BLOG',
       LEVEL: LEVEL_TYPES.BLOG,
     },
-  ]
+  ],
 }

@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema<IUser>(
     role: {
       type: String,
       enum: Object.values(CONSTANTS.ROLES),
-      default: CONSTANTS.ROLES.USER
+      default: CONSTANTS.ROLES.USER,
     },
     password: {
       type: String,
@@ -29,38 +29,38 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     isVerified: {
       type: Boolean,
-      default: false
+      default: false,
     },
     blogs: [
       {
-        blogId: { type: mongoose.Schema.Types.ObjectId, ref: "blogs" },
+        blogId: { type: mongoose.Schema.Types.ObjectId, ref: 'blogs' },
         role: {
           type: String,
-          enum: ["ADMIN", "USER", "MAINTAINER", "GUEST" ]
+          enum: ['ADMIN', 'USER', 'MAINTAINER', 'GUEST'],
         },
       },
     ],
     refreshToken: {
       type: String,
-    },  
+    },
     avatar: String,
     otp: {
       type: String,
-      required: true
+      required: true,
     },
     otp_expiration: {
       type: Date,
     },
     watchHistory: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "blogs"
+      ref: 'blogs',
     },
     watchLater: [
       {
-      type: mongoose.Schema.Types.ObjectId ,
-      ref: "blogs"
-    }
-  ],
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'blogs',
+      },
+    ],
   },
   { timestamps: true, versionKey: false },
 )
@@ -73,7 +73,5 @@ userSchema.pre('save', async function (next) {
 })
 
 userSchema.index({ email: 1 })
-
-
 
 export const User = mongoose.model<IUser>('users', userSchema)

@@ -1,12 +1,12 @@
-import {Request, Response,NextFunction } from 'express'
-import { ObjectSchema } from "joi"
+import { Request, Response, NextFunction } from 'express'
+import { ObjectSchema } from 'joi'
 
 const validateRequest = (schema: ObjectSchema) => {
   return (req: Request, res: Response, next: NextFunction) => {
     const { error } = schema.validate(req.body)
     if (error) {
       return res.status(400).json({
-        status: "error",
+        status: 'error',
         message: error.details[0].message,
       })
     }
@@ -15,21 +15,6 @@ const validateRequest = (schema: ObjectSchema) => {
 }
 
 export default validateRequest
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // import { validationResult } from 'express-validator'
 // const validator = async (req: Request, res: Response, next: NextFunction) => {
@@ -46,4 +31,3 @@ export default validateRequest
 // }
 
 // export default validator
-

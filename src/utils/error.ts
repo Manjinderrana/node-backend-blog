@@ -5,7 +5,7 @@ class ApiError extends Error {
 
   override stack?: string
 
-  constructor(status: number, message: string, isOperational = true, stack = "") {
+  constructor(status: number, message: string, isOperational = true, stack = '') {
     super(message)
     this.status = status
     this.isOperational = isOperational
@@ -17,4 +17,4 @@ class ApiError extends Error {
   }
 }
 
-export {ApiError}
+export { ApiError }

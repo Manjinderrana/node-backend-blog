@@ -1,5 +1,5 @@
 export interface IPermissions {
-    roleName: string
-    permissions: string []
-    isDeleted: boolean
+  roleName: string
+  permissions: string[]
+  isDeleted: boolean
 }

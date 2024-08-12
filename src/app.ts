@@ -13,7 +13,8 @@ import http from 'http'
 import { Server, Socket } from 'socket.io'
 import notificationRoutes from './routes/notification.route'
 import { errorHandler, errorConverter } from './middlewares/errorHandler'
-  
+import logger from './utils/logger'
+
 const app: Application = express()
 
 app.use(express.json({ limit: '50mb' }))
@@ -21,12 +22,12 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }))
 app.use(cookieParser())
 app.use(helmet())
 app.use(cors())
-app.options("*", cors())
+app.options('*', cors())
 
-app.use('/api/v1/auth' ,authRoutes)
-app.use('/api/v1/user' ,verifyJwt, userRoutes)
-app.use('/api/v1/blog' ,verifyJwt, blogRoutes)
-app.use('/api/v1/notification' ,verifyJwt, notificationRoutes)
+app.use('/api/v1/auth', authRoutes)
+app.use('/api/v1/user', verifyJwt, userRoutes)
+app.use('/api/v1/blog', verifyJwt, blogRoutes)
+app.use('/api/v1/notification', verifyJwt, notificationRoutes)
 
 app.use(errorConverter)
 
@@ -50,16 +51,16 @@ app.get('/socket', (_req: Request, res: Response) => {
 })
 
 io.on('connection', (socket: Socket) => {
-  global.socket = socket;
-  console.log('A user connected');
+  global.socket = socket
+  logger.info('A user connected')
 
   socket.on('chat message', (message: any) => {
-    console.log('Received message:', message);
-    io.emit('chat message', message);
-  });
+    logger.info('Received message:', message)
+    io.emit('chat message', message)
+  })
 
   socket.on('disconnect', () => {
-    console.log('User disconnected')
+    logger.info('User disconnected')
   })
 })
 

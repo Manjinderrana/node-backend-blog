@@ -13,8 +13,8 @@ export const verifyJwt = async (req: Request, _res: Response, next: NextFunction
       throw new ApiError(401, 'Unauthorized: No token provided')
     }
 
-    const isRevoked = await redisClient.get("accessToken")
-    
+    const isRevoked = await redisClient.get('accessToken')
+
     if (isRevoked) {
       throw new ApiError(401, 'Token has been revoked')
     }

@@ -12,4 +12,3 @@ const connectDB = async (): Promise<void | Response> => {
 }
 
 export default connectDB
-

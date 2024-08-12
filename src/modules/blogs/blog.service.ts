@@ -1,7 +1,7 @@
 import { IBlog, options } from './blog.interface'
 import Blog from './blog.model'
 import { customInterface } from '../../utils/interface'
-import { PipelineStage } from "mongoose"
+import { PipelineStage } from 'mongoose'
 
 export const createBlog = async (data: Partial<IBlog>) => {
   return (await Blog.create(data)).toJSON()
@@ -12,54 +12,52 @@ export const getBlog = async (searchQuery: customInterface, projection: string) 
 }
 
 export const getAllBlogsByUser = async (searchQuery: Partial<IBlog>, skip: number, limit: number) => {
-  const blogs = await Blog
-    .aggregate([
-      {
-        $match: {author: searchQuery},
-      },
-      ...(skip || limit
-        ? [
-            {
-              $skip: Number(skip),
+  const blogs = await Blog.aggregate([
+    {
+      $match: { author: searchQuery },
+    },
+    ...(skip || limit
+      ? [
+          {
+            $skip: Number(skip),
+          },
+          {
+            $limit: Number(limit),
+          },
+        ]
+      : []),
+    {
+      $lookup: {
+        from: 'users',
+        localField: 'author',
+        foreignField: '_id',
+        as: 'userData',
+        pipeline: [
+          {
+            $project: {
+              _id: 1,
+              email: 1,
+              username: 1,
             },
-            {
-              $limit: Number(limit),
-            },
-          ]
-        : []),
-      {
-        $lookup: {
-          from: "users",
-          localField: "author",
-          foreignField: "_id",
-          as: "userData",
-            pipeline : [
-             {
-              $project: {
-                "_id": 1,
-                "email": 1,
-                "username": 1,
-              }
-            }
-          ]
-        },
+          },
+        ],
       },
-      {
-        $unwind: "$userData",
-      },
-    ])
-    .sort({ createdAt: -1 })
-    
-  const count = await Blog.countDocuments({author: searchQuery})
-  const unreadCount = await Blog.countDocuments({ isRead: false, ...({author: searchQuery}) })
-  return { blogs , count, unreadCount }
+    },
+    {
+      $unwind: '$userData',
+    },
+  ]).sort({ createdAt: -1 })
+
+  const count = await Blog.countDocuments({ author: searchQuery })
+  const unreadCount = await Blog.countDocuments({ isRead: false, ...{ author: searchQuery } })
+  return { blogs, count, unreadCount }
 }
 
 export const getAllBlogs = async (searchQuery: Partial<IBlog>, skip: number, limit: number) => {
-  const all = await Blog.find({}).skip(skip).limit(limit).populate("author")
+  const all = await Blog.find({}).skip(skip).limit(limit).populate('author')
   const count = await Blog.countDocuments(searchQuery)
   const unreadCount = await Blog.countDocuments({ isRead: false, ...searchQuery })
-  const readCount = await Blog.countDocuments({ isRead: true, ...searchQuery }).populate("author")
+  const readCount = await Blog.countDocuments({ isRead: true, ...searchQuery }).populate('author')
   return { all, count, unreadCount, readCount }
 }
 
@@ -71,7 +69,7 @@ export const updateMany = async (searchQuery: customInterface, update: Partial<I
   return await Blog.updateMany(searchQuery, update, options)
 }
 
-export const aggregate = async (searchQuery: PipelineStage []) => {
+export const aggregate = async (searchQuery: PipelineStage[]) => {
   return await Blog.aggregate(searchQuery)
 }
 
@@ -80,6 +78,5 @@ export const find = async (searchQuery: customInterface, projection: string, ski
 }
 
 export const deleteAllWatchedBlogs = async (searchQuery: customInterface) => {
-  return await Blog.updateMany({isRead: true, ...searchQuery})
+  return await Blog.updateMany({ isRead: true, ...searchQuery })
 }
-

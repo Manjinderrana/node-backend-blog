@@ -7,8 +7,8 @@ import seed from './seed/seed'
 
 connectDB()
   .then(() => {
-      seed()
-      const server = httpServer.listen(process.env.PORT, () => {
+    seed()
+    const server = httpServer.listen(process.env.PORT, () => {
       redisClient.connect()
       logger.info(`Server started on port http://localhost:${process.env.PORT}`)
       cron.schedule('*/5 * * * *', () => {
@@ -31,4 +31,3 @@ connectDB()
     logger.error(`Database connection error: ${err.message}`)
     process.exit(1)
   })
-

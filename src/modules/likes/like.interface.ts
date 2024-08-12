@@ -1,7 +1,7 @@
-import { ObjectId } from "mongoose";
+import { ObjectId } from 'mongoose'
 
 export interface ILikes {
-    _id: ObjectId | string
-    likedBy : ObjectId | string
-    blogId: ObjectId | string
+  _id: ObjectId | string
+  likedBy: ObjectId | string
+  blogId: ObjectId | string
 }
