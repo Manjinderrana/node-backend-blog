@@ -1,0 +1,267 @@
+import { Request, Response } from 'express'
+import { ApiError } from '../../utils/error'
+import { ApiResponse } from '../../utils/response'
+import { UserRequest } from '../../utils/interface'
+import * as userService from './user.service'
+import * as blogService from '../../modules/blogs/blog.service'
+import * as subscriptionService from '../../modules/subscriptions/subscription.service'
+import { decodeToken, encryptAccessToken } from '../../utils/jwtUtils'
+import { sendMail } from '../../utils/sendMail'
+import { hashPassword } from '../../utils/hashPassword'
+import { IUser } from './user.interface'
+
+export const getAllUsers = async (_req: Request, res: Response): Promise<void | Response> => {
+  try {
+    const users = await userService.find({}, "_id username email role")
+
+    if (users?.length === 0) {
+      throw new ApiError(400, "users data not found")
+    }
+
+    const emails = users?.map((ele: Partial<IUser>) =>  { 
+       return { email: ele?.email,
+                role: ele?.role
+        }
+     })
+
+    return res.status(200).json(new ApiResponse(200, { users, emails }, "Users data fetched successfully"))
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const forgotPassword = async (req: Request, res: Response): Promise<void | Response> => {
+  try {
+    const { email } = req.body
+
+    const user = await userService.findOne({email},"_id username email")
+
+    if (!user) {
+      throw new ApiError(404, "User not found")
+    }
+
+      const token = encryptAccessToken(user)
+
+      const text = `Please click this link to reset your Password, http://localhost:3000/user/reset-password/${token}}` 
+ 
+      const subject = 'forgot password reset'
+
+      sendMail({
+        email: user?.email,
+        subject, 
+        text, 
+        HTMLtemplate: "forget-password.ejs.html" 
+      })
+
+      return res.status(200).json(new ApiResponse(200, {}, "Mail sent successfully"))
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const resetPassword = async (req: Request, res: Response): Promise<void | Response> => {
+   try {
+    const { token } = req.params
+    const { password } = req.body
+
+    if (!token) {
+      throw new ApiError(400, "token not found")
+    }
+
+    const hashed = await hashPassword(password)
+
+    const decoded = decodeToken(token) 
+
+      if (decoded) {
+        await userService.findByIdandUpdate(
+           {_id: decoded._id}, 
+           {password: hashed},
+           {new: true})
+        }
+
+    return res.status(200).json(new ApiResponse(200, {}, "Password reset successfully"))
+
+   } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+   }
+}
+
+export const changePassword = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { newPassword, confirmNewPassword } = req.body
+
+    if ((newPassword.toString() !== confirmNewPassword.toString())) {
+      throw new ApiError(400, 'password does not match')
+    }
+
+    const user = await userService.findOne({_id: (req as UserRequest).user?._id}, "_id password")
+
+    if (user) user.password = newPassword 
+    
+    await user?.save()
+
+    return res.status(200).json(new ApiResponse(200, user, 'password updated successfully'))
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const updateUser = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { username, email } = req.body
+
+    const user = await userService.updateOne(
+      {_id: (req as UserRequest).user?._id}, 
+      { username, email }, 
+      { new: true }
+    )
+
+    if (!user) {
+      throw new ApiError(404, "User not found")
+    }
+
+    return res.status(200).json(new ApiResponse(200, user, 'User Details Updated Successfully'))
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const subscribe = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { username } = req.query
+
+    const userId = (req as UserRequest)?.user?._id
+
+    const user = await userService.findOne({username},"_id username email")
+
+    const alreadySubscriber = await subscriptionService.getOne({ $and: [{subscribedId: user?._id}, {subscriberId: userId}]})
+  
+     if (!alreadySubscriber) {
+      await subscriptionService.create({
+        subscribedId: user?._id,
+        subscriberId: userId,
+      })
+      
+      return res.status(201).json(new ApiResponse(201, {},"Channel subscribed Successfully")) 
+
+     } else {
+      await subscriptionService.deleteOne({ $and: [{subscribedId: user?._id}, {subscriberId: userId}]})
+     }
+    
+    return res.status(200).json(new ApiResponse(200, {},"Channel unSubscribed Successfully")) 
+    
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const getChannelInfo = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { username } = req.query
+
+    const [channel] = await userService.aggregate([
+      {
+        $match: { username }
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "subscribedId",
+          as: "subscriber"
+        },
+      },
+      {
+        $lookup: {
+          from: "subscriptions",
+          localField: "_id",
+          foreignField: "subscriberId",
+          as: "subscribedTo"
+        }
+      },
+      {
+        $addFields: {
+          subscribersCount: { $size: "$subscriber" },
+          subscribedTo: { $size: "$subscribedTo"}
+        }
+      },
+      {
+        $unwind: { path: "$subscriber", preserveNullAndEmptyArrays: true },
+      },
+      {
+        $unwind: { path:"$subscribedTo", preserveNullAndEmptyArrays: true }
+      },
+      {
+        $project: {
+          _id: 1,
+          email: 1,
+          username: 1,
+          subscribersCount: 1,
+          subscribedTo: 1
+        }
+      }
+    ])
+
+    return res.status(200).json(new ApiResponse(200, channel, "Channel info fetched successfully"));
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message);
+  }
+}
+
+export const watchLater = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { blogId } = req.query
+
+    const alreadyWatchLater = (req as UserRequest)?.user?.watchLater?.includes(blogId)
+
+    if (!alreadyWatchLater) {
+      (req as UserRequest)?.user?.watchLater.push({_id: blogId})
+      await (req as UserRequest)?.user.save()
+      
+      return res.status(200).json(new ApiResponse(200 ,{} , "Added to watchLater"))
+    } else {
+      return res.status(200).json(new ApiResponse(200 ,{} , "Already added to watchLater"))
+    }
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const watchHistory = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { skip, limit } = req.query
+
+    const { readCount } = await blogService.getAllBlogs(
+       {},
+       Number(skip),
+       Number(limit),
+      )
+
+      return res.status(200).json(new ApiResponse(200, readCount , "Watch history fetched successfully"))
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
+
+export const removeFromWatchHistory = async (req: Request, res: Response): Promise<Response | void> => {
+  try {
+    const { blogId } = req.query
+
+     const remove = await blogService.updateBlog(
+         {_id: blogId},
+         {isRead: false},
+         {new: true}
+      )
+
+      return res.status(200).json(new ApiResponse(200, remove, "Blog removed from watchHistory successfully"))
+
+  } catch (error: any) {
+    throw new ApiError(error.status, error.message)
+  }
+}
