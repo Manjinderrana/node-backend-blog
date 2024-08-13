@@ -3,7 +3,7 @@ import { User } from '../../src/modules/user/user.model'
 import { NextFunction, Request, Response } from 'express'
 import redisClient from '../../src/utils/redisClient'
 import { UserRequest } from '../../src/utils/interface'
-import { decodeToken } from '../../src/utils/jwtUtils'
+import { decodedAccessToken } from '../../src/utils/jwtUtils'
 
 export const verifyJwt = async (req: Request, _res: Response, next: NextFunction): Promise<any> => {
   try {
@@ -13,13 +13,13 @@ export const verifyJwt = async (req: Request, _res: Response, next: NextFunction
       throw new ApiError(401, 'Unauthorized: No token provided')
     }
 
-    const isRevoked = await redisClient.get('accessToken')
+    const isRevoked = await redisClient.get(token)
 
-    if (isRevoked) {
+    if (isRevoked == "blacklisted") {
       throw new ApiError(401, 'Token has been revoked')
     }
 
-    const decoded = decodeToken(token)
+    const decoded = decodedAccessToken(token)
 
     const user = await User.findById(decoded?._id)
 

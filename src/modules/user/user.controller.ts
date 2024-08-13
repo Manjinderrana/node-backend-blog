@@ -5,7 +5,7 @@ import { UserRequest } from '../../utils/interface'
 import * as userService from './user.service'
 import * as blogService from '../../modules/blogs/blog.service'
 import * as subscriptionService from '../../modules/subscriptions/subscription.service'
-import { decodeToken, encryptAccessToken } from '../../utils/jwtUtils'
+import { decodedAccessToken, encryptAccessToken } from '../../utils/jwtUtils'
 import { sendMail } from '../../utils/sendMail'
 import { hashPassword } from '../../utils/hashPassword'
 import { IUser } from './user.interface'
@@ -68,7 +68,7 @@ export const resetPassword = async (req: Request, res: Response): Promise<void |
 
     const hashed = await hashPassword(password)
 
-    const decoded = decodeToken(token)
+    const decoded = decodedAccessToken(token)
 
     if (decoded) {
       await userService.findByIdandUpdate({ _id: decoded._id }, { password: hashed }, { new: true })

@@ -40,10 +40,9 @@ const userSchema = new mongoose.Schema<IUser>(
         },
       },
     ],
-    refreshToken: {
-      type: String,
+    avatar: { 
+      type: String
     },
-    avatar: String,
     otp: {
       type: String,
       required: true,

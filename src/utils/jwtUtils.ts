@@ -2,9 +2,17 @@ import { IUser } from '../../src/modules/user/user.interface'
 import jwt from 'jsonwebtoken'
 import { ApiError } from './error'
 
-export const decodeToken = (token: string): any => {
+export const decodedAccessToken = (token: string): any => {
   try {
     return jwt.verify(token, process.env.ACCESS_TOKEN_SECRET || '')
+  } catch (error: any) {
+    throw new ApiError(400, `Invalid or expired Token: ${error.message}`)
+  }
+}
+
+export const decodedRefreshToken = (token: string): any => {
+  try {
+    return jwt.verify(token, process.env.REFRESH_TOKEN_SECRET || '')
   } catch (error: any) {
     throw new ApiError(400, `Invalid or expired Token: ${error.message}`)
   }

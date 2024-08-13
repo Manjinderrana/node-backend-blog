@@ -10,7 +10,6 @@ export interface IUser {
   email: string
   avatar: String
   password: string
-  refreshToken: string
   otp: string
   otp_expiration: Date
   role: string

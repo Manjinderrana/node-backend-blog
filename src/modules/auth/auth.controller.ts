@@ -3,9 +3,8 @@ import { ApiError } from '../../utils/error'
 import bcrypt from 'bcryptjs'
 import jwt, { JwtPayload } from 'jsonwebtoken'
 import { ApiResponse } from '../../utils/response'
-import { UserRequest } from '../../utils/interface'
 import * as userService from '../user/user.service'
-import { decodeToken, encryptAccessToken, encryptRefreshToken } from '../../utils/jwtUtils'
+import { decodedAccessToken, decodedRefreshToken, encryptAccessToken, encryptRefreshToken } from '../../utils/jwtUtils'
 import redisClient from '../../utils/redisClient'
 import { sendMail } from '../../utils/sendMail'
 import { IUser } from '../user/user.interface'
@@ -65,7 +64,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
   await notificationService.createNotification({ userId: registeredUser?._id, message1: `${registeredUser?.username} registered successfully` })
 
   const text = `Your OTP is ${otp} \n
-      Please click this link to verify your email, \n
+      Please click this link to verify your email by entering the otp, \n
       http://localhost:3000/api/v1/user/verifyMail/${Authorization}`
 
   const subject = 'Email verification mail'
@@ -103,9 +102,9 @@ export const login = wrap(async (req: Request, res: Response): Promise<Response 
 
   const refreshToken = encryptRefreshToken(existingUser)
 
-  existingUser.refreshToken = refreshToken
+  const decoded = jwt.decode(refreshToken) as JwtPayload
 
-  await existingUser.save()
+  await redisClient.set(refreshToken, 'whitelisted', { EX: decoded?.exp })
 
   const options = {
     httpOnly: true,
@@ -139,9 +138,9 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
     throw new ApiError(404, 'Refresh token not found')
   }
 
-  const blacklisted = await redisClient.get(refreshToken)
+  const token = await redisClient.get(refreshToken)
 
-  if (blacklisted) {
+  if (token == 'blacklisted') {
     throw new ApiError(401, 'Access denied')
   }
 
@@ -154,10 +153,10 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
   let newRefreshToken
   if (refreshToken?.exp - currentTime < 3600) {
     newRefreshToken = jwt.sign({ _id: decoded?._id }, process.env.REFRESH_TOKEN_SECRET || '', { expiresIn: '7d' })
-    ;(req as UserRequest).user.refreshToken = newRefreshToken
-    await (req as UserRequest).user.save()
+    const decode = decodedAccessToken(newRefreshToken) as JwtPayload
+    await redisClient.set(newRefreshToken, 'whitelisted', {EX: decode?.exp})
   }
-
+  
   const options = {
     httpOnly: true,
     secure: true,
@@ -205,9 +204,9 @@ export const logout = wrap(async (req: Request, res: Response): Promise<void | R
 
   const refreshToken = req.cookies?.refreshToken || req.headers['x-refresh-token']
 
-  const accessDecoded = decodeToken(accessToken)
+  const accessDecoded = decodedAccessToken(accessToken)
 
-  const refreshDecoded = decodeToken(refreshToken)
+  const refreshDecoded = decodedRefreshToken(refreshToken)
 
   const currentTime = Math.floor(Date.now() / 1000)
 
@@ -215,11 +214,9 @@ export const logout = wrap(async (req: Request, res: Response): Promise<void | R
 
   const refreshTtl = refreshDecoded?.exp - currentTime
 
-  await redisClient.set('accessToken', accessToken, { EX: accessTtl })
+  await redisClient.set(accessToken, 'blacklisted', { EX: accessTtl })
 
-  await redisClient.set('refreshToken', refreshToken, { EX: refreshTtl })
-
-  await userService.updateOne({ _id: (req as UserRequest)?.user?._id }, { $unset: { refreshToken } }, { new: true })
+  await redisClient.set(refreshToken, 'blacklisted', { EX: refreshTtl })
 
   const options = {
     httpOnly: true,
