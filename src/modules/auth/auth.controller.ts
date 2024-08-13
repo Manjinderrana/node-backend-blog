@@ -65,7 +65,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
 
   const text = `Your OTP is ${otp} \n
       Please click this link to verify your email by entering the otp, \n
-      http://localhost:3000/api/v1/user/verifyMail/${Authorization}`
+      http://localhost:3000/api/v1/user/verifyMail`
 
   const subject = 'Email verification mail'
 

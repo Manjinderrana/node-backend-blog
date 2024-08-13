@@ -1,46 +1,42 @@
 import { sendMail } from '../../src/utils/sendMail'
 import * as userService from '../../src/modules/user/user.service'
 import logger from '../../src/utils/logger'
-import { encryptAccessToken } from '../../src/utils/jwtUtils'
 import { CONSTANTS } from '../../src/utils/constants'
 import Permissions from '../../src/modules/rolePermissions/rolePermissions.model'
+import sendOTP from '../../src/utils/sendOtp'
 
 const seed = async (): Promise<any> => {
-  try {
-    const adminCredentials = {
-      username: process.env.ADMIN_NAME,
-      email: process.env.ADMIN_EMAIL,
-      password: process.env.ADMIN_PASSWORD,
-      role: CONSTANTS.ROLES.ADMIN,
-    }
+  const adminCredentials = {
+    username: process.env.ADMIN_NAME,
+    email: process.env.ADMIN_EMAIL,
+    password: process.env.ADMIN_PASSWORD,
+    role: CONSTANTS.ROLES.ADMIN,
+    otp: sendOTP(),
+    otp_expiration: new Date(Date.now() + 10 * 60 * 1000),
+  }
 
-    const existingAdmin = await userService.findOne(
-      { $and: [{ email: adminCredentials.email }, { role: CONSTANTS.ROLES.ADMIN }] },
-      '_id username email role',
-    )
+  const existingAdmin = await userService.findOne(
+    { $and: [{ email: adminCredentials.email }, { role: CONSTANTS.ROLES.ADMIN }] },
+    '_id username email role',
+  )
 
-    let admin: any
-    if (!existingAdmin) {
-      admin = await userService.create(adminCredentials)
+  let admin: any
+  if (!existingAdmin) {
+    admin = await userService.create(adminCredentials)
 
-      const token = encryptAccessToken(admin)
+    const text = `Your OTP is ${adminCredentials?.otp} \n
+      Please click this link to verify your email by entering the otp, \n
+      http://localhost:3000/api/v1/user/verifyMail`
 
-      const text = `Please click this link to verify your email, http://localhost:3000/api/v1/user/verifyMail/${token}`
+    const subject = 'Email verification mail'
 
-      const subject = 'Email verification mail'
+    sendMail({
+      email: adminCredentials?.email,
+      subject,
+      text,
+    })
 
-      sendMail({
-        email: adminCredentials?.email,
-        subject,
-        text,
-      })
-
-      logger.info('Admin created successfully')
-
-      return admin
-    } else {
-      logger.info('Admin already exists')
-    }
+    logger.info('Admin created successfully')
 
     const rolePermissionsCount = await Permissions.countDocuments({})
     if (rolePermissionsCount || !process.env.SEED) return
@@ -63,8 +59,9 @@ const seed = async (): Promise<any> => {
     insertRolePermissions.push({ roleName: 'ADMIN', permissions: adminPermissions })
 
     await Permissions.insertMany(insertRolePermissions)
-  } catch (error) {
-    logger.info('Admin user already exists')
+    return admin
+  } else {
+    logger.info('Admin already exists')
   }
 }
 
