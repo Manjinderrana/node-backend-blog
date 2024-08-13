@@ -9,9 +9,9 @@ import { decodedAccessToken, encryptAccessToken } from '../../utils/jwtUtils'
 import { sendMail } from '../../utils/sendMail'
 import { hashPassword } from '../../utils/hashPassword'
 import { IUser } from './user.interface'
+import wrap from '../../utils/asyncHandler'
 
-export const getAllUsers = async (_req: Request, res: Response): Promise<void | Response> => {
-  try {
+export const getAllUsers = wrap ( async (_req: Request, res: Response): Promise<void | Response> => {
     const users = await userService.find({}, '_id username email role')
 
     if (users?.length === 0) {
@@ -23,13 +23,9 @@ export const getAllUsers = async (_req: Request, res: Response): Promise<void | 
     })
 
     return res.status(200).json(new ApiResponse(200, { users, emails }, 'Users data fetched successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const forgotPassword = async (req: Request, res: Response): Promise<void | Response> => {
-  try {
+export const forgotPassword = wrap( async (req: Request, res: Response): Promise<void | Response> => {
     const { email } = req.body
 
     const user = await userService.findOne({ email }, '_id username email')
@@ -52,13 +48,9 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void 
     })
 
     return res.status(200).json(new ApiResponse(200, {}, 'Mail sent successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const resetPassword = async (req: Request, res: Response): Promise<void | Response> => {
-  try {
+export const resetPassword = wrap ( async (req: Request, res: Response): Promise<void | Response> => {
     const { token } = req.params
     const { password } = req.body
 
@@ -75,13 +67,9 @@ export const resetPassword = async (req: Request, res: Response): Promise<void |
     }
 
     return res.status(200).json(new ApiResponse(200, {}, 'Password reset successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const changePassword = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const changePassword = wrap( async (req: Request, res: Response): Promise<Response | void> => {
     const { newPassword, confirmNewPassword } = req.body
 
     if (newPassword.toString() !== confirmNewPassword.toString()) {
@@ -95,13 +83,9 @@ export const changePassword = async (req: Request, res: Response): Promise<Respo
     await user?.save()
 
     return res.status(200).json(new ApiResponse(200, user, 'password updated successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const updateUser = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const updateUser = wrap( async (req: Request, res: Response): Promise<Response | void> => {
     const { username, email } = req.body
 
     const user = await userService.updateOne({ _id: (req as UserRequest).user?._id }, { username, email }, { new: true })
@@ -111,13 +95,9 @@ export const updateUser = async (req: Request, res: Response): Promise<Response 
     }
 
     return res.status(200).json(new ApiResponse(200, user, 'User Details Updated Successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const subscribe = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const subscribe = wrap( async (req: Request, res: Response): Promise<Response | void> => {
     const { username } = req.query
 
     const userId = (req as UserRequest)?.user?._id
@@ -138,13 +118,9 @@ export const subscribe = async (req: Request, res: Response): Promise<Response |
     }
 
     return res.status(200).json(new ApiResponse(200, {}, 'Channel unSubscribed Successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const getChannelInfo = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const getChannelInfo = wrap ( async (req: Request, res: Response): Promise<Response | void> => {
     const { username } = req.query
 
     const [channel] = await userService.aggregate([
@@ -191,13 +167,9 @@ export const getChannelInfo = async (req: Request, res: Response): Promise<Respo
     ])
 
     return res.status(200).json(new ApiResponse(200, channel, 'Channel info fetched successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const watchLater = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const watchLater = wrap( async (req: Request, res: Response): Promise<Response | void> => {
     const { blogId } = req.query
 
     const alreadyWatchLater = (req as UserRequest)?.user?.watchLater?.includes(blogId)
@@ -210,31 +182,20 @@ export const watchLater = async (req: Request, res: Response): Promise<Response 
     } else {
       return res.status(200).json(new ApiResponse(200, {}, 'Already added to watchLater'))
     }
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const watchHistory = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const watchHistory = wrap ( async (req: Request, res: Response): Promise<Response | void> => {
     const { skip, limit } = req.query
 
     const { readCount } = await blogService.getAllBlogs({}, Number(skip), Number(limit))
 
     return res.status(200).json(new ApiResponse(200, readCount, 'Watch history fetched successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})
 
-export const removeFromWatchHistory = async (req: Request, res: Response): Promise<Response | void> => {
-  try {
+export const removeFromWatchHistory = wrap( async (req: Request, res: Response): Promise<Response | void> => {
     const { blogId } = req.query
 
     const remove = await blogService.updateBlog({ _id: blogId }, { isRead: false }, { new: true })
 
     return res.status(200).json(new ApiResponse(200, remove, 'Blog removed from watchHistory successfully'))
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})

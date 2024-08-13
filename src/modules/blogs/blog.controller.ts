@@ -140,12 +140,12 @@ const controller = {
       let message1 = `${(req as UserRequest)?.user?.username} liked a blog ${blog?.title}`
       let message2 = `${(req as UserRequest)?.user?.username} liked your Blog ${blog?.title}`
 
-      const arr = []
+      const arr: string[] = []
 
       arr.push(message1)
       arr.push(message2)
 
-      const promise = arr.map((ele: any) => {
+      const promise = arr.map((ele: string) => {
         return notificationService.deleteNotification({ message: ele })
       })
 
@@ -369,7 +369,7 @@ const controller = {
       },
     ])
 
-    const commentStr = comments.commentsData.map((ele: string | any) => {
+    const commentStr = comments.commentsData.map((ele: customInterface) => {
       return ele.commentString
     })
 
@@ -413,7 +413,7 @@ const controller = {
   universalSearch: wrap(async (req: Request, res: Response): Promise<Response | void> => {
     const query = req.query.q
 
-    const { skip = 0, limit = 0 } = req.query
+    const { skip = 0, limit = 4 } = req.query
 
     if (!query) {
       throw new ApiError(400, 'search query is required')
