@@ -99,7 +99,7 @@ const controller = {
       },
     ])
 
-    const comments = commentsOnBlogs?.commentsData?.map((ele: string | any) => {
+    const comments = commentsOnBlogs?.commentsData?.map((ele: customInterface) => {
       return ele.commentString
     })
 
