@@ -154,7 +154,8 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
   if (refreshToken?.exp - currentTime < 3600) {
     newRefreshToken = jwt.sign({ _id: decoded?._id }, process.env.REFRESH_TOKEN_SECRET || '', { expiresIn: '7d' })
     const decode = decodedAccessToken(newRefreshToken) as JwtPayload
-    await redisClient.set(newRefreshToken, 'whitelisted', {EX: decode?.exp})
+    await redisClient.set(newRefreshToken, 'whitelisted', { EX: decode?.exp })
+    res.cookie('refreshToken',  newRefreshToken, { httpOnly: true, secure: true})
   }
   
   const options = {
