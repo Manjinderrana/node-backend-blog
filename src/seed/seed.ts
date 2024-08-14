@@ -6,7 +6,7 @@ import Permissions from '../../src/modules/rolePermissions/rolePermissions.model
 import sendOTP from '../../src/utils/sendOtp'
 import { IUser } from '../../src/modules/user/user.interface'
 
-const seed = async (): Promise<any> => {
+const seed = async (): Promise<IUser | void> => {
   const adminCredentials: Partial<IUser> = {
     username: process.env.ADMIN_NAME,
     email: process.env.ADMIN_EMAIL,
