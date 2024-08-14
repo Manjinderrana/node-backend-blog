@@ -6,7 +6,7 @@ export interface blog {
 
 export interface IUser {
   _id: ObjectId | string
-  username: string | string
+  username: string
   email: string
   avatar: String
   password: string

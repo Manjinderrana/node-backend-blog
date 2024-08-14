@@ -4,9 +4,10 @@ import logger from '../../src/utils/logger'
 import { CONSTANTS } from '../../src/utils/constants'
 import Permissions from '../../src/modules/rolePermissions/rolePermissions.model'
 import sendOTP from '../../src/utils/sendOtp'
+import { IUser } from '../../src/modules/user/user.interface'
 
 const seed = async (): Promise<any> => {
-  const adminCredentials = {
+  const adminCredentials: Partial<IUser> = {
     username: process.env.ADMIN_NAME,
     email: process.env.ADMIN_EMAIL,
     password: process.env.ADMIN_PASSWORD,
