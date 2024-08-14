@@ -286,8 +286,8 @@ const controller = {
     await sendNotifications(
       (req as UserRequest)?.user?._id,
       blogId as unknown as ObjectId,
-      `Blog ${deletedBlog?.title} deleted by ${(req as UserRequest)?.user?.username}`,
       `Blog ${deletedBlog?.title} deleted`,
+      `Blog ${deletedBlog?.title} deleted by ${(req as UserRequest)?.user?.username}`,
     )
 
     return res.status(200).json(new ApiResponse(200, { deletedBlog }, 'Blog deleted successfully'))

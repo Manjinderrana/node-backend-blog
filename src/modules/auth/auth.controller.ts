@@ -87,7 +87,7 @@ export const login = wrap(async (req: Request, res: Response): Promise<Response 
   const existingUser = await userService.findOne({ email }, 'id username email password isVerified')
 
   if (!existingUser) {
-    throw new ApiError(404, 'user not found')
+    throw new ApiError(404, 'User does not exist')
   }
 
   if (!existingUser?.isVerified) return res.status(400).json(new ApiResponse(400, {}, 'Your account is not verified'))
