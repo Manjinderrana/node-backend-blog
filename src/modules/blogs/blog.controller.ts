@@ -412,8 +412,8 @@ const controller = {
 
   universalSearch: wrap(async (req: Request, res: Response): Promise<Response | void> => {
     const query = req.query.q
-
-    const { skip = 0, limit = 4 } = req.query
+    const skip = 0
+    const limit = 4
 
     if (!query) {
       throw new ApiError(400, 'search query is required')
