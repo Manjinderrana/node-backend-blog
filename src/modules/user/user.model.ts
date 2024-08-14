@@ -40,8 +40,8 @@ const userSchema = new mongoose.Schema<IUser>(
         },
       },
     ],
-    avatar: { 
-      type: String
+    avatar: {
+      type: String,
     },
     otp: {
       type: String,

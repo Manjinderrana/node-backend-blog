@@ -15,7 +15,7 @@ export const verifyJwt = async (req: Request, _res: Response, next: NextFunction
 
     const isRevoked = await redisClient.get(token)
 
-    if (isRevoked == "blacklisted") {
+    if (isRevoked == 'blacklisted') {
       throw new ApiError(401, 'Token has been revoked')
     }
 
