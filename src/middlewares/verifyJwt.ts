@@ -4,9 +4,9 @@ import { NextFunction, Request, Response } from 'express'
 import redisClient from '../../src/utils/redisClient'
 import { UserRequest } from '../../src/utils/interface'
 import { decodedAccessToken } from '../../src/utils/jwtUtils'
+import wrap from '../../src/utils/asyncHandler'
 
-export const verifyJwt = async (req: Request, _res: Response, next: NextFunction): Promise<any> => {
-  try {
+export const verifyJwt = wrap (async (req: Request, _res: Response, next: NextFunction): Promise<Response | void> => {
     const token = req.cookies?.accessToken || req.header('Authorization')?.replace('Bearer ', '')
 
     if (!token) {
@@ -26,7 +26,4 @@ export const verifyJwt = async (req: Request, _res: Response, next: NextFunction
     ;(req as UserRequest).user = user
 
     next()
-  } catch (error: any) {
-    throw new ApiError(error.status, error.message)
-  }
-}
+})

@@ -4,8 +4,9 @@ import * as notificationService from '../../src/modules/notifications/notificati
 import * as blogService from '../../src/modules/blogs/blog.service'
 import { customInterface } from './interface'
 import { convertToObjectId } from './convertToObjectId'
+import { INotification } from '../../src/modules/notifications/notification.interface'
 
-const sendNotifications = async (userId: ObjectId, blogId: ObjectId, message1?: string, message2?: string): Promise<any> => {
+const sendNotifications = async (userId: ObjectId, blogId: ObjectId, message1?: string, message2?: string): Promise<INotification> => {
   try {
     // const notification = await notificationService.getNotification({ $and:[{userId: userId}, {blogId: blogId},{message: message}] })
 

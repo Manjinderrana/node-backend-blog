@@ -1,7 +1,8 @@
 import { customInterface } from '../user/user.service'
+import { ISubscription } from './subscription.interface'
 import Subscription from './subscription.model'
 
-export const create = async (data: any) => {
+export const create = async (data: Partial<ISubscription>) => {
   return (await Subscription.create(data)).toJSON()
 }
 

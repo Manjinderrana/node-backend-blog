@@ -54,7 +54,7 @@ io.on('connection', (socket: Socket) => {
   global.socket = socket
   logger.info('A user connected')
 
-  socket.on('chat message', (message: any) => {
+  socket.on('chat message', (message: string) => {
     logger.info('Received message:', message)
     io.emit('chat message', message)
   })

@@ -21,7 +21,7 @@ const seed = async (): Promise<IUser | void> => {
     '_id username email role',
   )
 
-  let admin: any
+  let admin: IUser
   if (!existingAdmin) {
     admin = await userService.create(adminCredentials)
 
