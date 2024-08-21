@@ -3,6 +3,8 @@ import * as blogService from '../blogs/blog.service'
 import * as userService from '../user/user.service'
 import * as commentService from '../comments/comment.service'
 import * as likeService from '../likes/like.service'
+import * as rolePermissionsService from '../rolePermissions/rolePermissions.service'
+import * as userBlogRolePermissionService from '../userBlogRolePermissions/UserBlogRolePermissions.service'
 import { UserRequest, customInterface } from '../../utils/interface'
 import { ApiError } from '../../utils/error'
 import { ApiResponse } from '../../utils/response'
@@ -12,6 +14,9 @@ import sendNotifications from '../../utils/notifications'
 import { IBlog } from './blog.interface'
 import * as notificationService from '../../modules/notifications/notification.service'
 import wrap from '../../utils/asyncHandler'
+import logger from '../../utils/logger'
+import { CONSTANTS } from '../../utils/constants'
+import * as executeAggregations from '../../utils/executeAggregation'
 
 const controller = {
   createBlog: wrap(async (req: Request, res: Response): Promise<Response> => {
@@ -33,12 +38,19 @@ const controller = {
     const user = await userService.findOne((req as UserRequest)?.user?._id, '_id username email blogs role')
 
     if (user) {
-      user?.blogs?.push({
-        blogId: blog?._id,
-      })
+      user?.blogs?.push(blog?._id)
     }
 
     await user?.save()
+
+    const [rolePermission] = await rolePermissionsService.aggregate([{ $match: { roleName: CONSTANTS.ROLES.ADMIN, isDeleted: { $ne: true } } }])
+
+    await userBlogRolePermissionService.create({
+      userId: (req as UserRequest)?.user?._id,
+      blogId: blog?._id,
+      roleName: rolePermission?.roleName,
+      permissions: rolePermission?.permissions,
+    })
 
     await notificationService.createNotification({
       userId: (req as UserRequest)?.user?._id,
@@ -223,27 +235,37 @@ const controller = {
 
     const { title, description } = req.body
 
-    const updatedData = await blogService.updateBlog(
-      { _id: blogId },
+    const authorizedBlogIds = await executeAggregations.authorizedBlogIds((req as UserRequest)?.user?._id, ['BLOG - VIEW_ALL_BLOGS'])
+
+    const authorizedBlog = authorizedBlogIds?.find((ele) => ele?.toString() == blogId?.toString())
+    
+    if (!authorizedBlog) throw new ApiError(403, "Forbidden")
+  
+    const blog = await blogService.updateOne(
+      {
+        $and: [{ _id: { $in: authorizedBlogIds } }, { _id: blogId }],
+        isDeleted: { $ne: true },
+      },
       {
         title,
-        description,
+        description
       },
-      { new: true },
+      {new: true}
     )
-
-    if (updatedData?.author.toString() !== ((req as UserRequest)?.user?._id).toString()) {
-      throw new ApiError(401, 'unauthorized access')
-    }
+    if (!blog) throw new ApiError(400, "Blog does not exist")
+  
+    // if (updatedData?.author.toString() !== ((req as UserRequest)?.user?._id).toString()) {
+    //   throw new ApiError(401, 'unauthorized access')
+    // }
 
     await sendNotifications(
       (req as UserRequest)?.user?._id,
       blogId as unknown as ObjectId,
-      `Blog ${updatedData?.title} updated by ${(req as UserRequest)?.user?.username}`,
-      `Blog ${updatedData?.title} updated`,
+      `Blog ${blog?.title} updated by ${(req as UserRequest)?.user?.username}`,
+      `Blog ${blog?.title} updated`,
     )
 
-    return res.status(200).json(new ApiResponse(200, updatedData, 'Blog updated successfully'))
+    return res.status(200).json(new ApiResponse(200, {blog}, 'Blog updated successfully'))
   }),
 
   readBlog: wrap(async (req: userService.customInterface, res: Response): Promise<Response | void> => {
@@ -268,7 +290,7 @@ const controller = {
 
     const author = (req as UserRequest)?.user?._id
 
-    await userService.updateOne({ _id: author }, { $pull: { blogs: { blogId: blogId } } }, { new: true })
+    await userService.updateOne({ _id: author }, { $pull: { blogs: blogId } }, { new: true })
 
     const deletedBlog = await blogService.updateBlog(
       {
@@ -430,13 +452,13 @@ const controller = {
           },
         ],
       },
-      '_id image title description',
+      '_id image title description author',
       skip as number,
       limit as number,
     )
 
     if (result?.length === 0) {
-      throw res.status(404).json(new ApiResponse(404, [], 'No search results found'))
+      throw res.status(404).json(new ApiError(404, 'No search results found'))
     }
 
     return res.status(200).json(new ApiResponse(200, { result }, 'Search data fetched successfully'))
@@ -475,12 +497,28 @@ const controller = {
     }
 
     const BlogData = await Promise.all(
-      user?.blogs.map((ele: customInterface) => {
-        return blogService.getBlog(ele?.blogId, '_id image title description author isDeleted isRead')
+      user?.blogs?.map((blogId: any) => {
+        return blogService.getBlog(blogId as ObjectId, '_id image title description author isDeleted isRead')
       }),
     )
 
     return res.status(200).json(new ApiResponse(200, { BlogData }, 'Users blogs fetched successfully'))
+  }),
+
+  getBlogByFilter: wrap(async (req: Request, res: Response): Promise<Response | void> => {
+    const { days } = req.query
+
+    const date30DaysAgo = new Date()
+    date30DaysAgo.setDate(date30DaysAgo.getDate() - (Number(days) || 1))
+
+    const filteredData = await blogService.find({ createdAt: { $gte: date30DaysAgo } }, '-members', 0, 0)
+
+    if (filteredData?.length === 0) {
+      logger.error('data does not exist')
+      return res.status(400).json(new ApiError(404, 'Data not found'))
+    }
+
+    return res.status(200).json(new ApiResponse(200, { filteredData }, 'Data fetched successfully'))
   }),
 }
 

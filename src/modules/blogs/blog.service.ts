@@ -8,7 +8,7 @@ export const createBlog = async (data: Partial<IBlog>) => {
 }
 
 export const getBlog = async (searchQuery: customInterface, projection: string) => {
-  return await Blog.findById(searchQuery, projection)
+  return await Blog.findOne(searchQuery, projection)
 }
 
 export const getAllBlogsByUser = async (searchQuery: Partial<IBlog>, skip: number, limit: number) => {
@@ -61,8 +61,12 @@ export const getAllBlogs = async (searchQuery: Partial<IBlog>, skip: number, lim
   return { all, count, unreadCount, readCount }
 }
 
-export const updateBlog = async (searchQuery: customInterface, update: Partial<IBlog>, options: options) => {
+export const updateBlog = async (searchQuery: customInterface, update: customInterface, options: options) => {
   return await Blog.findByIdAndUpdate(searchQuery, update, options)
+}
+
+export const updateOne = async (searchQuery: customInterface, update: customInterface, options: options) => {
+  return await Blog.findOneAndUpdate(searchQuery, update, options)
 }
 
 export const updateMany = async (searchQuery: customInterface, update: Partial<IBlog>, options: options) => {

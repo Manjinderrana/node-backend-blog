@@ -69,11 +69,20 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
 
   const subject = 'Email verification mail'
 
-  sendMail({
-    email: registeredUser?.email,
-    subject,
-    text,
-  })
+  const html = `<div
+  class="container"
+  style="max-width: 90%; margin: auto; padding-top: 20px"; justify-content: center; align-items: center
+>
+  <h2>Welcome to the club.</h2>
+  <h4>You are officially In ✔</h4>
+  <p style="margin-bottom: 30px;">Pleas enter the sign up OTP to get started</p>
+  <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
+  <p>  Please click this link to verify your email by entering the otp, \n
+  http://localhost:3000/api/v1/user/verifyMail
+</p>
+</div>`
+
+  sendMail(registeredUser?.email,subject,text, html)
 
   return res
     .status(201)
@@ -181,7 +190,7 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
 export const verifyMail = wrap(async (req: Request, res: Response): Promise<void | Response> => {
   const { otp } = req.body as Partial<IUser>
 
-  const user = await userService.findOne({ otp }, '_id username email otp otp_expiration')
+  const user = await userService.findOne({ otp }, '_id username email otp otp_expiration isVerified')
 
   if (!user) {
     throw new ApiError(400, 'Invalid OTP')
@@ -197,7 +206,7 @@ export const verifyMail = wrap(async (req: Request, res: Response): Promise<void
 
   await user.save()
 
-  return res.status(200).json(new ApiResponse(200, { data: user?.isVerified }, 'Email verified successfully'))
+  return res.status(200).json(new ApiResponse(200, user, 'Email verified successfully'))
 })
 
 export const logout = wrap(async (req: Request, res: Response): Promise<void | Response> => {
@@ -252,13 +261,19 @@ export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Respo
     Please click this link to verify your email, \n
     http://localhost:3000/api/v1/user/verifyMail`
 
-  const subject = 'Email verification mail'
+  const subject = 'ReSend OTP mail'
 
-  sendMail({
-    email: existingUser?.email,
-    subject,
-    text,
-  })
+  const html = `<div
+  class="container"
+  style="max-width: 90%; margin: auto; padding-top: 20px"; justify-content: center; align-items: center
+>
+  <h2>Welcome to the club.</h2>
+  <h4>You are officially In ✔</h4>
+  <p style="margin-bottom: 30px;">Please enter the OTP to get started</p>
+  <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
+</div>`
 
-  return res.status(200).json(new ApiResponse(200, { data: existingUser }, 'OTP resend successfully'))
+  sendMail(existingUser?.email,subject,text,html)
+
+  return res.status(200).json(new ApiResponse(200, existingUser , 'OTP resend successfully'))
 })

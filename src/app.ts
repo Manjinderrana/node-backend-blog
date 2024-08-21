@@ -1,4 +1,4 @@
-import { Application, Request, Response } from 'express'
+import { Application, NextFunction, Request, Response } from 'express'
 import express from 'express'
 import dotenv from 'dotenv'
 dotenv.config()
@@ -14,6 +14,7 @@ import { Server, Socket } from 'socket.io'
 import notificationRoutes from './routes/notification.route'
 import { errorHandler, errorConverter } from './middlewares/errorHandler'
 import logger from './utils/logger'
+import httpStatus from 'http-status'
 
 const app: Application = express()
 
@@ -25,7 +26,7 @@ app.use(cors())
 app.options('*', cors())
 
 app.use('/api/v1/auth', authRoutes)
-app.use('/api/v1/user', verifyJwt, userRoutes)
+app.use('/api/v1/user', userRoutes)
 app.use('/api/v1/blog', verifyJwt, blogRoutes)
 app.use('/api/v1/notification', verifyJwt, notificationRoutes)
 
@@ -34,7 +35,26 @@ app.use(errorConverter)
 app.use(errorHandler)
 
 app.get('/', (_req: Request, res: Response) => {
-  res.send('Backend working')
+  res.json({message: 'Backend working'})
+})
+
+app.use("*", (_req: Request, _res: Response, next: NextFunction) => {
+  const error = {
+    status: 404,
+    message: httpStatus.NOT_FOUND,
+  };
+  next(error);
+});
+
+app.use((err: any, _req: Request, res: Response, _next:NextFunction): any => {
+  const status = err.status || 500;
+  const message = err.message || httpStatus.INTERNAL_SERVER_ERROR
+  const data = err.data || null;
+  res.status(status).json({
+    type: "error",
+    message,
+    data,
+  })
 })
 
 declare global {

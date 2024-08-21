@@ -1,9 +1,5 @@
 import { ObjectId } from 'mongoose'
 
-export interface blog {
-  blogId: ObjectId | string
-}
-
 export interface IUser {
   _id: ObjectId | string
   username: string
@@ -13,7 +9,7 @@ export interface IUser {
   otp: string
   otp_expiration: Date
   role: string
-  blogs: blog[]
+  blogs: (ObjectId | string)[]
   isVerified: boolean
   watchLater: (ObjectId | string)[]
   watchHistory: (ObjectId | string)[]

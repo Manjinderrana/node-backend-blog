@@ -21,6 +21,7 @@ blogrouter.route('/count/:blogId').get(permission(['USER', 'MAINTAINER', 'ADMIN'
 blogrouter.route('/comment/:blogId').get(permission(['USER', 'MAINTAINER', 'ADMIN']), controller.getComments)
 blogrouter.route('/getwatchlater').get(permission(['USER', 'MAINTAINER', 'ADMIN']), controller.getWatchLaterData)
 blogrouter.route('/search').get(controller.universalSearch)
+blogrouter.route('/filteredBlogs').get(controller.getBlogByFilter)
 blogrouter.route('/likeComment').post(permission(['USER', 'MAINTAINER', 'ADMIN']), controller.likeComment)
 
 export default blogrouter

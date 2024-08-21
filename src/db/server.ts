@@ -3,10 +3,10 @@ import mongoose from 'mongoose'
 
 const connectDB = async (): Promise<void | Response> => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI ?? 'mongodb://localhost:27017')
-    logger.info(`Database connected Successfully: ${conn.connection.port}`)
+    const conn = await mongoose.connect(process.env.MONGODB_URI || '')
+    logger.info(`Database connected Successfully: ${conn.connection.host}`)
   } catch (error: any) {
-    logger.info('Database connection error', error.message)
+    logger.info('Database connection error', { message: error.message, stack: error.stack })
     process.exit(1)
   }
 }

@@ -33,12 +33,8 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     blogs: [
       {
-        blogId: { type: mongoose.Schema.Types.ObjectId, ref: 'blogs' },
-        role: {
-          type: String,
-          enum: ['ADMIN', 'USER', 'MAINTAINER', 'GUEST'],
-        },
-      },
+        type: mongoose.Schema.Types.ObjectId, ref: 'blogs'
+       },
     ],
     avatar: {
       type: String,

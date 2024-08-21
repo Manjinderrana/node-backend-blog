@@ -26,16 +26,21 @@ const seed = async (): Promise<IUser | void> => {
     admin = await userService.create(adminCredentials)
 
     const text = `Your OTP is ${adminCredentials?.otp} \n
-      Please click this link to verify your email by entering the otp, \n
       http://localhost:3000/api/v1/user/verifyMail`
 
     const subject = 'Email verification mail'
 
-    sendMail({
-      email: adminCredentials?.email,
-      subject,
-      text,
-    })
+    const html = `<div
+    class="container"
+    style="max-width: 90%; margin: auto; padding-top: 20px"; justify-content: center; align-content: center
+  >
+    <h2>Welcome to the club.</h2>
+    <h4>You are officially In ✔</h4>
+    <p style="margin-bottom: 30px;">Pleas enter the sign up OTP to get started</p>
+    <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
+</div>`
+
+    sendMail(adminCredentials?.email,subject,text, html)
 
     logger.info('Admin created successfully')
 

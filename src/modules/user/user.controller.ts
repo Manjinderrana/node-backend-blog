@@ -36,16 +36,19 @@ export const forgotPassword = wrap(async (req: Request, res: Response): Promise<
 
   const token = encryptAccessToken(user)
 
-  const text = `Please click this link to reset your Password, http://localhost:3000/user/reset-password/${token}}`
+  const text = `http://localhost:3000/user/reset-password/${token}}`
 
   const subject = 'forgot password reset'
 
-  sendMail({
-    email: user?.email,
-    subject,
-    text,
-    HTMLtemplate: 'forget-password.ejs.html',
-  })
+  const html = `<div
+        class="container"
+        style="max-width: 90%; margin: auto; padding-top: 20px"; justify-content: center; align-items: center
+      >
+        <p style="margin-bottom: 30px;">Please click the below link to reset your password</p>
+        <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
+   </div>`
+
+  sendMail(user?.email, subject,text, html)
 
   return res.status(200).json(new ApiResponse(200, {}, 'Mail sent successfully'))
 })
