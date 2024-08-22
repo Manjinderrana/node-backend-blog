@@ -12,10 +12,10 @@ const notificationSchema = new mongoose.Schema<INotification>(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'blogs',
     },
-    message1: {
+    userMessage: {
       type: String,
     },
-    message2: {
+    adminMessage: {
       type: String,
     },
     isRead: {

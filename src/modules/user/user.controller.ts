@@ -107,17 +107,21 @@ export const subscribe = wrap(async (req: Request, res: Response): Promise<Respo
 
   const user = await userService.findOne({ username }, '_id username email')
 
-  const alreadySubscriber = await subscriptionService.getOne({ $and: [{ subscribedId: user?._id }, { subscriberId: userId }] })
+  if (userId.toString() == user?._id.toString()) {
+    throw new ApiError(409, "You cannot subscribe your channel")
+  }
+
+  const alreadySubscriber = await subscriptionService.getOne({ $and: [{ subscribedToId: user?._id }, { subscriberId: userId }] })
 
   if (!alreadySubscriber) {
     await subscriptionService.create({
-      subscribedId: user?._id,
+      subscribedToId: user?._id,
       subscriberId: userId,
     })
 
     return res.status(201).json(new ApiResponse(201, {}, 'Channel subscribed Successfully'))
   } else {
-    await subscriptionService.deleteOne({ $and: [{ subscribedId: user?._id }, { subscriberId: userId }] })
+    await subscriptionService.deleteOne({ $and: [{ subscribedToId: user?._id }, { subscriberId: userId }] })
   }
 
   return res.status(200).json(new ApiResponse(200, {}, 'Channel unSubscribed Successfully'))
@@ -134,7 +138,7 @@ export const getChannelInfo = wrap(async (req: Request, res: Response): Promise<
       $lookup: {
         from: 'subscriptions',
         localField: '_id',
-        foreignField: 'subscribedId',
+        foreignField: 'subscribedToId',
         as: 'subscriber',
       },
     },

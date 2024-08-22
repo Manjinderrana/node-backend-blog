@@ -6,7 +6,7 @@ import { customInterface } from './interface'
 import { convertToObjectId } from './convertToObjectId'
 import { INotification } from '../../src/modules/notifications/notification.interface'
 
-const sendNotifications = async (userId: ObjectId, blogId: ObjectId, message1?: string, message2?: string): Promise<INotification> => {
+const sendNotifications = async (userId: ObjectId, blogId: ObjectId, userMessage?: string, adminMessage?: string): Promise<INotification> => {
   try {
     // const notification = await notificationService.getNotification({ $and:[{userId: userId}, {blogId: blogId},{message: message}] })
 
@@ -25,26 +25,26 @@ const sendNotifications = async (userId: ObjectId, blogId: ObjectId, message1?: 
     uniqueUserIdsArray.push(userId)
 
     let data: any
-    if (uniqueUserIdsArray && message1)
+    if (uniqueUserIdsArray && userMessage)
       if (uniqueUserIdsArray?.length != 0) data = uniqueUserIdsArray.filter((element) => element?.toString() !== blog?.author?.toString())
 
     const filteredIds = data.map((ele: any) => {
       return {
         userId: convertToObjectId(ele),
-        blogId: blogId,
-        message1: message1,
+        blogId,
+        userMessage: userMessage,
       }
     })
 
     const createdNotification = await notificationService.createNotification(filteredIds)
 
-    io.to(filteredIds?.ele?.toString()).emit('notification', JSON.stringify(createdNotification))
+    io.to(data?.map((userId: any) => userId as string)).emit('notification', JSON.stringify(createdNotification))
 
-    if (blog?.author && message2) {
+    if (blog?.author && adminMessage) {
       const createdNotification = await notificationService.createNotification({
         userId: blog?.author,
         blogId,
-        message2,
+        adminMessage,
       })
 
       io.to(blog?.author as string).emit('notification', JSON.stringify(createdNotification))

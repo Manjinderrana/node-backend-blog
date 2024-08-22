@@ -16,18 +16,18 @@ import wrap from '../../utils/asyncHandler'
 export const register = wrap(async (req: Request, res: Response): Promise<void | Response> => {
   const { username, email, password } = req.body as IUser
 
-  if (!(email?.endsWith('@gmail.com') || email?.endsWith('@rgi.ac.in'))) {
-    throw new ApiError(403, 'Wrong Domain')
-  }
-
   if (!(username && email && password)) {
     throw new ApiError(400, 'All fields required')
   }
 
-  const existingUser = await userService.findOne({ email }, 'id username email')
+  if (!(email?.endsWith('@gmail.com') || email?.endsWith('@rgi.ac.in'))) {
+    throw new ApiError(403, 'Wrong Domain')
+  }
+
+  const existingUser = await userService.findOne({ $or: [{email},{username}]}, 'id username email')
 
   if (existingUser) {
-    throw new ApiError(400, 'User already exists')
+    throw new ApiError(400, 'User with username or email already exists ')
   }
 
   const otp = sendOTP()
@@ -61,7 +61,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
 
   const Authorization = encryptAccessToken(registeredUser as IUser)
 
-  await notificationService.createNotification({ userId: registeredUser?._id, message1: `${registeredUser?.username} registered successfully` })
+  await notificationService.createNotification({ userId: registeredUser?._id, userMessage: `${registeredUser?.username} registered successfully` })
 
   const text = `Your OTP is ${otp} \n
       Please click this link to verify your email by entering the otp, \n

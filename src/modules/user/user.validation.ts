@@ -20,10 +20,6 @@ export const updateUserValidate = Joi.object({
   email: Joi.string().trim().lowercase().email().required(),
 })
 
-export const subscribeValidate = Joi.object({
-  username: Joi.string().trim().required(),
-})
-
 export const getChannelInfoValidate = Joi.object({
   username: Joi.string().trim().required(),
 })

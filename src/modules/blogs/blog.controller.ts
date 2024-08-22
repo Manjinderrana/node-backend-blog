@@ -20,7 +20,7 @@ import * as executeAggregations from '../../utils/executeAggregation'
 
 const controller = {
   createBlog: wrap(async (req: Request, res: Response): Promise<Response> => {
-    const { title, description } = req.body
+    const { title, description } = req.body as Partial<IBlog>
     const image = req?.file?.filename
     const blog = await blogService.createBlog({
       image,
@@ -55,7 +55,7 @@ const controller = {
     await notificationService.createNotification({
       userId: (req as UserRequest)?.user?._id,
       blogId: blog?._id,
-      message1: `${user?.username} created a blog ${blog?.title}`,
+      userMessage: `${user?.username} created a blog ${blog?.title}`,
     })
 
     return res.status(201).json(new ApiResponse(201, blog, 'Blog created successfully'))
@@ -138,24 +138,24 @@ const controller = {
         blogId: blogId,
       })
 
-      let message1 = `${(req as UserRequest)?.user?.username} liked a blog ${blog?.title}`
-      let message2 = `${(req as UserRequest)?.user?.username} liked your Blog ${blog?.title}`
+      let usermessage = `${(req as UserRequest)?.user?.username} liked a blog ${blog?.title}`
+      let adminMessage = `${(req as UserRequest)?.user?.username} liked your Blog ${blog?.title}`
 
-      await sendNotifications((req as UserRequest)?.user?._id, blogId as unknown as ObjectId, message1, message2)
+      await sendNotifications((req as UserRequest)?.user?._id, blogId as unknown as ObjectId, usermessage, adminMessage)
 
       io.to((req as UserRequest)?.user?._id?.toString()).emit('notification', JSON.stringify(`Blog ${blog?.title} added to liked blogs`))
 
-      await sendNotifications(blog?.author as ObjectId, blogId as unknown as ObjectId, message2)
+      await sendNotifications(blog?.author as ObjectId, blogId as unknown as ObjectId, adminMessage)
 
       return res.status(200).json(new ApiResponse(200, {}, 'blog liked successfully'))
     } else {
-      let message1 = `${(req as UserRequest)?.user?.username} liked a blog ${blog?.title}`
-      let message2 = `${(req as UserRequest)?.user?.username} liked your Blog ${blog?.title}`
+      let usermessage = `${(req as UserRequest)?.user?.username} liked a blog ${blog?.title}`
+      let adminMessage = `${(req as UserRequest)?.user?.username} liked your Blog ${blog?.title}`
 
       const arr: string[] = []
 
-      arr.push(message1)
-      arr.push(message2)
+      arr.push(usermessage)
+      arr.push(adminMessage)
 
       const promise = arr.map((ele: string) => {
         return notificationService.deleteNotification({ message: ele })
@@ -181,7 +181,7 @@ const controller = {
       await notificationService.createNotification({
         userId: (req as UserRequest)?.user?._id,
         blogId: blogId as unknown as ObjectId,
-        message1: 'Blog added to disliked blogs',
+        userMessage: 'Blog added to disliked blogs',
       })
 
       return res.status(200).json(new ApiResponse(200, {}, 'blog disliked successfully'))
@@ -190,7 +190,7 @@ const controller = {
     await notificationService.createNotification({
       userId: (req as UserRequest)?.user?._id,
       blogId: blogId as unknown as ObjectId,
-      message1: 'Blog added to disliked blogs',
+      userMessage: 'Blog added to disliked blogs',
     })
 
     return res.status(200).json(new ApiResponse(200, {}, 'blog disliked successfully'))
@@ -253,10 +253,6 @@ const controller = {
       {new: true}
     )
     if (!blog) throw new ApiError(400, "Blog does not exist")
-  
-    // if (updatedData?.author.toString() !== ((req as UserRequest)?.user?._id).toString()) {
-    //   throw new ApiError(401, 'unauthorized access')
-    // }
 
     await sendNotifications(
       (req as UserRequest)?.user?._id,

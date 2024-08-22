@@ -5,8 +5,8 @@ export interface INotification {
   userId: ObjectId | string
   blogId: ObjectId | string
   adminUser: ObjectId | string
-  message1: string
-  message2: string
+  userMessage: string
+  adminMessage: string
   isRead: boolean
   isDeleted: boolean
 }

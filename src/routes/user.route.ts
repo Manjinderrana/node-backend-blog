@@ -16,10 +16,8 @@ import { Router } from 'express'
 import {
   changePasswordValidate,
   forgotPasswordValidate,
-  getChannelInfoValidate,
   removeFromWatchHistoryValidate,
   resetPasswordValidate,
-  subscribeValidate,
   watchHistoryValidate,
   watchLaterValidate,
 } from '../../src/modules/user/user.validation'
@@ -28,8 +26,8 @@ const router = Router()
 router.route('/changePassword/:id').patch(validateRequest(changePasswordValidate), changePassword)
 router.route('/updateDetails/:id').patch(updateUser)
 router.route('/getAllUsers').get(permission(['ADMIN']), getAllUsers)
-router.route('/subscribe').post(validateRequest(subscribeValidate), subscribe)
-router.route('/channelInfo').get(validateRequest(getChannelInfoValidate), getChannelInfo)
+router.route('/subscribe').post(subscribe)
+router.route('/channelInfo').get(getChannelInfo)
 router.route('/watchLater').post(validateRequest(watchLaterValidate), watchLater)
 router.route('/watchHistory').get(validateRequest(watchHistoryValidate), watchHistory)
 router.route('/remove').patch(validateRequest(removeFromWatchHistoryValidate), removeFromWatchHistory)

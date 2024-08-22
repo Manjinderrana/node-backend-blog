@@ -20,13 +20,16 @@ const app: Application = express()
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
+app.use(express.static("public"))
 app.use(cookieParser())
 app.use(helmet())
-app.use(cors())
-app.options('*', cors())
+app.use(cors({
+  origin: process.env.CORS_ORIGIN,
+  credentials: true
+}))
 
 app.use('/api/v1/auth', authRoutes)
-app.use('/api/v1/user', userRoutes)
+app.use('/api/v1/user', verifyJwt, userRoutes)
 app.use('/api/v1/blog', verifyJwt, blogRoutes)
 app.use('/api/v1/notification', verifyJwt, notificationRoutes)
 

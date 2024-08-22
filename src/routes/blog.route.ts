@@ -1,11 +1,11 @@
 import { Router } from 'express'
 import controller from '../../src/modules/blogs/blog.controller'
-import multerMiddleWare from '../../src/middlewares/multer'
+import upload from '../../src/middlewares/multer'
 import permission from '../../src/middlewares/permissions'
 
 const blogrouter = Router()
 
-blogrouter.route('/create').post(multerMiddleWare.single('image'), controller.createBlog)
+blogrouter.route('/create').post(upload.single('image'), controller.createBlog)
 blogrouter.route('/get/:blogId').get(permission(['USER', 'MAINTAINER', 'ADMIN']), controller.getBlog)
 blogrouter.route('/getAll').get(permission(['USER', 'MAINTAINER', 'ADMIN']), controller.getAllBlogsByUser)
 blogrouter.route('/getUserBlog').get(permission(['USER', 'MAINTAINER', 'ADMIN']), controller.getBlogsFromUser)
