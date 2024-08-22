@@ -4,7 +4,7 @@ import * as userService from '../user/user.service'
 import * as commentService from '../comments/comment.service'
 import * as likeService from '../likes/like.service'
 import * as rolePermissionsService from '../rolePermissions/rolePermissions.service'
-import * as userBlogRolePermissionService from '../userBlogRolePermissions/UserBlogRolePermissions.service'
+import * as userBlogRolePermissionsService from "../../modules/userBlogRolePermissions/userBlogRolePermissions.service"
 import { UserRequest, customInterface } from '../../utils/interface'
 import { ApiError } from '../../utils/error'
 import { ApiResponse } from '../../utils/response'
@@ -45,7 +45,7 @@ const controller = {
 
     const [rolePermission] = await rolePermissionsService.aggregate([{ $match: { roleName: CONSTANTS.ROLES.ADMIN, isDeleted: { $ne: true } } }])
 
-    await userBlogRolePermissionService.create({
+    await userBlogRolePermissionsService.create({
       userId: (req as UserRequest)?.user?._id,
       blogId: blog?._id,
       roleName: rolePermission?.roleName,
@@ -237,7 +237,7 @@ const controller = {
 
     const authorizedBlogIds = await executeAggregations.authorizedBlogIds((req as UserRequest)?.user?._id, ['BLOG - VIEW_ALL_BLOGS'])
 
-    const authorizedBlog = authorizedBlogIds?.find((ele) => ele?.toString() == blogId?.toString())
+    const authorizedBlog = authorizedBlogIds?.find((ele: customInterface) => ele?.toString() == blogId?.toString())
     
     if (!authorizedBlog) throw new ApiError(403, "Forbidden")
   

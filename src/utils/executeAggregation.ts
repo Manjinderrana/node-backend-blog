@@ -1,5 +1,6 @@
 import { ObjectId } from "mongoose"
-import * as userBlogRolePermissionsService from "../modules/userBlogRolePermissions/UserBlogRolePermissions.service"
+import * as userBlogRolePermissionsService from "../modules/userBlogRolePermissions/userBlogRolePermissions.service"
+import { customInterface } from "./interface"
 // import * as aggregateQueries from "./aggregateQueries"
 
 export const authorizedBlogIds = async (
@@ -35,5 +36,5 @@ export const authorizedBlogIds = async (
         },
       ]
       )
-    ).map((ele) => ele?.blogId)
+    ).map((ele: customInterface) => ele?.blogId)
   }
