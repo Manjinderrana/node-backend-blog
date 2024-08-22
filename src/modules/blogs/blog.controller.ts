@@ -290,22 +290,26 @@ const controller = {
 
     const author = (req as UserRequest)?.user?._id
 
-    await userService.updateOne({ _id: author }, { $pull: { blogs: blogId } }, { new: true })
+    const authorizedBlogIds = await executeAggregations.authorizedBlogIds(author, ['BLOG - DELETE_ANY_BLOG'])
 
-    const deletedBlog = await blogService.updateBlog(
-      {
-        _id: blogId,
-        author,
-      },
-      { isRead: true, isDeleted: true },
-      { new: true },
-    )
+    const authorizedBlog = authorizedBlogIds?.find((ele: customInterface) => ele?.toString() == blogId?.toString())
+    
+    if (!authorizedBlog) throw new ApiError(403, "Forbidden")
 
-    if (deletedBlog?.author?.toString() !== author.toString()) {
-      throw new ApiError(401, 'unauthorized access')
-    }
+      const deletedBlog = await blogService.updateOne(
+        {
+          $and: [{ _id: { $in: authorizedBlogIds } }, { _id: blogId }],
+          isDeleted: { $ne: true },
+        },
+        { isRead: true, isDeleted: true, members: [] },
+        {new: true}
+      )
 
-    await sendNotifications(
+      if (!deletedBlog) throw new ApiError(400, "Blog does not exist")
+        
+      await userService.updateOne({ _id: author }, { $pull: { blogs: blogId } }, { new: true })
+
+      await sendNotifications(
       (req as UserRequest)?.user?._id,
       blogId as unknown as ObjectId,
       `Blog ${deletedBlog?.title} deleted`,

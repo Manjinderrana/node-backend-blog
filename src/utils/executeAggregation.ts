@@ -1,7 +1,6 @@
 import { ObjectId } from "mongoose"
 import * as userBlogRolePermissionsService from "../modules/userBlogRolePermissions/userBlogRolePermissions.service"
 import { customInterface } from "./interface"
-// import * as aggregateQueries from "./aggregateQueries"
 
 export const authorizedBlogIds = async (
     userId: string | ObjectId,

@@ -12,7 +12,7 @@ connectDB()
       redisClient.connect()
       logger.info(`Server started on port http://localhost:${process.env.PORT}`)
       cron.schedule('*/5 * * * *', () => {
-        // logger.info('Running scheduled job after every 5 minutes')
+        logger.info('Running scheduled job after every 5 minutes')
       })
     })
 
