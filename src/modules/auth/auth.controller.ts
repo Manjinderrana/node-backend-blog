@@ -16,11 +16,11 @@ import wrap from '../../utils/asyncHandler'
 export const register = wrap(async (req: Request, res: Response): Promise<void | Response> => {
   const { username, email, password } = req.body as IUser
 
-  if (!(username && email && password)) {
+  if ([username, email, password].some((field) => field?.trim() === "")) {
     throw new ApiError(400, 'All fields required')
   }
 
-  if (!(email?.endsWith('@gmail.com') || email?.endsWith('@rgi.ac.in'))) {
+  if (!(email?.endsWith('@gmail.com') || email?.endsWith('@thewitslab.com'))) {
     throw new ApiError(403, 'Wrong Domain')
   }
 
@@ -71,18 +71,14 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
 
   const html = `<div
   class="container"
-  style="max-width: 90%; margin: auto; padding-top: 20px"; justify-content: center; align-items: center
->
+  style="max-width: 90%; margin: auto; padding-top: 20px"; justify-content: center; align-items: center>
   <h2>Welcome to the club.</h2>
   <h4>You are officially In ✔</h4>
   <p style="margin-bottom: 30px;">Pleas enter the sign up OTP to get started</p>
   <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
-  <p>  Please click this link to verify your email by entering the otp, \n
-  http://localhost:3000/api/v1/user/verifyMail
-</p>
 </div>`
 
-  sendMail(registeredUser?.email,subject,text, html)
+  sendMail(registeredUser?.email as string,subject,text, html)
 
   return res
     .status(201)

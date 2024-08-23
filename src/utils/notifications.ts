@@ -3,7 +3,6 @@ import { ApiError } from './error'
 import * as notificationService from '../../src/modules/notifications/notification.service'
 import * as blogService from '../../src/modules/blogs/blog.service'
 import { customInterface } from './interface'
-import { convertToObjectId } from './convertToObjectId'
 import { INotification } from '../../src/modules/notifications/notification.interface'
 
 const sendNotifications = async (userId: ObjectId, blogId: ObjectId, userMessage?: string, adminMessage?: string): Promise<INotification> => {
@@ -24,21 +23,21 @@ const sendNotifications = async (userId: ObjectId, blogId: ObjectId, userMessage
 
     uniqueUserIdsArray.push(userId)
 
-    let data: any
+    let data: ObjectId[] = []
     if (uniqueUserIdsArray && userMessage)
       if (uniqueUserIdsArray?.length != 0) data = uniqueUserIdsArray.filter((element) => element?.toString() !== blog?.author?.toString())
 
-    const filteredIds = data.map((ele: any) => {
+    const filteredIds = data.map((ele: ObjectId) => {
       return {
-        userId: convertToObjectId(ele),
+        userId: ele,
         blogId,
         userMessage: userMessage,
       }
     })
 
-    const createdNotification = await notificationService.createNotification(filteredIds)
+    const createdNotification = await notificationService.createNotification(filteredIds as Partial<INotification>)
 
-    io.to(data?.map((userId: any) => userId as string)).emit('notification', JSON.stringify(createdNotification))
+    io.to(data?.map((userId: ObjectId) => userId.toString())).emit('notification', JSON.stringify(createdNotification))
 
     if (blog?.author && adminMessage) {
       const createdNotification = await notificationService.createNotification({
