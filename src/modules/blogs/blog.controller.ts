@@ -497,7 +497,7 @@ const controller = {
     }
 
     const BlogData = await Promise.all(
-      user?.blogs?.map((blogId: any) => {
+      user?.blogs?.map((blogId: unknown) => {
         return blogService.getBlog(blogId as ObjectId, '_id image title description author isDeleted isRead')
       }),
     )

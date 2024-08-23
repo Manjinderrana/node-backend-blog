@@ -58,6 +58,6 @@ export const updateMany = async (searchQuery: customInterface, updateQuery: cust
   return await Notification.updateMany(searchQuery, updateQuery, options)
 }
 
-export const deleteNotification = async (data: any) => {
+export const deleteNotification = async (data: customInterface) => {
   return await Notification.deleteOne(data)
 }

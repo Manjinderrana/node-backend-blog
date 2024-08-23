@@ -23,10 +23,3 @@ export interface options {
   }
 }
 
-export interface UpdateQuery {
-  $set?: Record<string, any>
-  $unset?: Record<string, any>
-  $push?: Record<string, any>
-  $pull?: Record<string, any>
-  [key: string]: any
-}

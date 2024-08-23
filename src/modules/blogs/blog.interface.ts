@@ -25,12 +25,3 @@ export interface options {
     [key: string]: number
   }
 }
-
-export interface UpdateQuery {
-  $set?: Record<string, any>
-  $or?: Record<string, any>
-  $unset?: Record<string, any>
-  $push?: Record<string, any>
-  $pull?: Record<string, any>
-  [key: string]: any
-}

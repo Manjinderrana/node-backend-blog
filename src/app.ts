@@ -12,8 +12,9 @@ import { verifyJwt } from './middlewares/verifyJwt'
 import http from 'http'
 import { Server, Socket } from 'socket.io'
 import notificationRoutes from './routes/notification.route'
-import { errorHandler, errorConverter } from './middlewares/errorHandler'
+import { errorHandler } from './middlewares/errorHandler'
 import logger from './utils/logger'
+import {CustomError} from "./utils/interfaces"
 import httpStatus from 'http-status'
 
 const app: Application = express()
@@ -33,8 +34,6 @@ app.use('/api/v1/user', verifyJwt, userRoutes)
 app.use('/api/v1/blog', verifyJwt, blogRoutes)
 app.use('/api/v1/notification', verifyJwt, notificationRoutes)
 
-app.use(errorConverter)
-
 app.use(errorHandler)
 
 app.get('/', (_req: Request, res: Response) => {
@@ -49,7 +48,7 @@ app.use("*", (_req: Request, _res: Response, next: NextFunction) => {
   next(error);
 });
 
-app.use((err: any, _req: Request, res: Response, _next:NextFunction): any => {
+app.use((err: CustomError, _req: Request, res: Response, _next:NextFunction) => {
   const status = err.status || 500;
   const message = err.message || httpStatus.INTERNAL_SERVER_ERROR
   const data = err.data || null;
