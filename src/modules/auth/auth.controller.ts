@@ -16,7 +16,7 @@ import wrap from '../../utils/asyncHandler'
 export const register = wrap(async (req: Request, res: Response): Promise<void | Response> => {
   const { username, email, password } = req.body as IUser
 
-  if ([username, email, password].some((field) => field?.trim() === "")) {
+  if ([username, email, password].some((field) => field?.trim() === '')) {
     throw new ApiError(400, 'All fields required')
   }
 
@@ -24,7 +24,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
     throw new ApiError(403, 'Wrong Domain')
   }
 
-  const existingUser = await userService.findOne({ $or: [{email},{username}]}, 'id username email')
+  const existingUser = await userService.findOne({ $or: [{ email }, { username }] }, 'id username email')
 
   if (existingUser) {
     throw new ApiError(400, 'User with username or email already exists ')
@@ -78,7 +78,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
   <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
 </div>`
 
-  sendMail(registeredUser?.email as string,subject,text, html)
+  sendMail(registeredUser?.email as string, subject, text, html)
 
   return res
     .status(201)
@@ -269,7 +269,7 @@ export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Respo
   <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
 </div>`
 
-  sendMail(existingUser?.email,subject,text,html)
+  sendMail(existingUser?.email, subject, text, html)
 
-  return res.status(200).json(new ApiResponse(200, existingUser , 'OTP resend successfully'))
+  return res.status(200).json(new ApiResponse(200, existingUser, 'OTP resend successfully'))
 })

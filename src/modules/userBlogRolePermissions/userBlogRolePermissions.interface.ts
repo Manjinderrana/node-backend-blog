@@ -1,10 +1,10 @@
-import { ObjectId } from "mongoose";
+import { ObjectId } from 'mongoose'
 
 export interface IBlogRolePermissions {
-    _id: ObjectId
-    roleName: string
-    permissions: string
-    blogId: ObjectId
-    userId: ObjectId
-    isDeleted: boolean
+  _id: ObjectId
+  roleName: string
+  permissions: string
+  blogId: ObjectId
+  userId: ObjectId
+  isDeleted: boolean
 }

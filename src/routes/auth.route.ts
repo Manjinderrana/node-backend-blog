@@ -1,8 +1,8 @@
 import { Router } from 'express'
-import { login, logout, reSendOTP, refreshController, register, verifyMail } from '../../src/modules/auth/auth.controller'
-import { verifyJwt } from '../../src/middlewares/verifyJwt'
-import validateRequest from '../../src/middlewares/validator'
-import { signup, loginUser, verifyEmail } from '../../src/modules/auth/auth.validation'
+import { login, logout, reSendOTP, refreshController, register, verifyMail } from '../modules/auth/auth.controller'
+import { verifyJwt } from '../middlewares/verifyJwt'
+import validateRequest from '../middlewares/validator'
+import { signup, loginUser, verifyEmail } from '../modules/auth/auth.validation'
 
 const authRouter = Router()
 

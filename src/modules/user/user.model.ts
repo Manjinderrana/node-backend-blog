@@ -33,8 +33,9 @@ const userSchema = new mongoose.Schema<IUser>(
     },
     blogs: [
       {
-        type: mongoose.Schema.Types.ObjectId, ref: 'blogs'
-       },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'blogs',
+      },
     ],
     avatar: {
       type: String,

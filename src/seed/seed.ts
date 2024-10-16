@@ -1,10 +1,10 @@
-import { sendMail } from '../../src/utils/sendMail'
-import * as userService from '../../src/modules/user/user.service'
-import logger from '../../src/utils/logger'
-import { CONSTANTS } from '../../src/utils/constants'
-import Permissions from '../../src/modules/rolePermissions/rolePermissions.model'
-import sendOTP from '../../src/utils/sendOtp'
-import { IUser } from '../../src/modules/user/user.interface'
+import { sendMail } from '../utils/sendMail'
+import * as userService from '../modules/user/user.service'
+import logger from '../utils/logger'
+import { CONSTANTS } from '../utils/constants'
+import Permissions from '../modules/rolePermissions/rolePermissions.model'
+import sendOTP from '../utils/sendOtp'
+import { IUser } from '../modules/user/user.interface'
 
 const seed = async (): Promise<IUser | void> => {
   const adminCredentials: Partial<IUser> = {
@@ -39,7 +39,7 @@ const seed = async (): Promise<IUser | void> => {
     <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
 </div>`
 
-    sendMail(adminCredentials?.email as string,subject,text, html)
+    sendMail(adminCredentials?.email as string, subject, text, html)
 
     logger.info('Admin created successfully')
 

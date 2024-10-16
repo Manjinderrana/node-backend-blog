@@ -1,9 +1,9 @@
 import { ObjectId } from 'mongoose'
 import { ApiError } from './error'
-import * as notificationService from '../../src/modules/notifications/notification.service'
-import * as blogService from '../../src/modules/blogs/blog.service'
+import * as notificationService from '../modules/notifications/notification.service'
+import * as blogService from '../modules/blogs/blog.service'
 import { customInterface } from './interface'
-import { INotification } from '../../src/modules/notifications/notification.interface'
+import { INotification } from '../modules/notifications/notification.interface'
 
 const sendNotifications = async (userId: ObjectId, blogId: ObjectId, userMessage?: string, adminMessage?: string): Promise<INotification> => {
   try {

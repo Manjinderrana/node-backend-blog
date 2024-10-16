@@ -14,20 +14,22 @@ import { Server, Socket } from 'socket.io'
 import notificationRoutes from './routes/notification.route'
 import { errorHandler } from './middlewares/errorHandler'
 import logger from './utils/logger'
-import {CustomError} from "./utils/interfaces"
+import { CustomError } from './utils/interfaces'
 import httpStatus from 'http-status'
 
 const app: Application = express()
 
 app.use(express.json({ limit: '50mb' }))
 app.use(express.urlencoded({ limit: '50mb', extended: true }))
-app.use(express.static("public"))
+app.use(express.static('public'))
 app.use(cookieParser())
 app.use(helmet())
-app.use(cors({
-  origin: process.env.CORS_ORIGIN,
-  credentials: true
-}))
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  }),
+)
 
 app.use('/api/v1/auth', authRoutes)
 app.use('/api/v1/user', verifyJwt, userRoutes)
@@ -37,23 +39,23 @@ app.use('/api/v1/notification', verifyJwt, notificationRoutes)
 app.use(errorHandler)
 
 app.get('/', (_req: Request, res: Response) => {
-  res.json({message: 'Backend working'})
+  res.json({ message: 'Backend working' })
 })
 
-app.use("*", (_req: Request, _res: Response, next: NextFunction) => {
+app.use('*', (_req: Request, _res: Response, next: NextFunction) => {
   const error = {
     status: 404,
     message: httpStatus.NOT_FOUND,
-  };
-  next(error);
-});
+  }
+  next(error)
+})
 
-app.use((err: CustomError, _req: Request, res: Response, _next:NextFunction) => {
-  const status = err.status || 500;
+app.use((err: CustomError, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status || 500
   const message = err.message || httpStatus.INTERNAL_SERVER_ERROR
-  const data = err.data || null;
+  const data = err.data || null
   res.status(status).json({
-    type: "error",
+    type: 'error',
     message,
     data,
   })

@@ -1,7 +1,7 @@
-import { UserRequest } from '../../src/utils/interface'
+import { UserRequest } from '../utils/interface'
 import { NextFunction, Request, Response } from 'express'
-import * as userService from '../../src/modules/user/user.service'
-import { ApiError } from '../../src/utils/error'
+import * as userService from '../modules/user/user.service'
+import { ApiError } from '../utils/error'
 
 const permission = (roles: string[]) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<Response | void> => {
@@ -25,9 +25,9 @@ export default permission
 
 // Middleware to check if user is admin
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
-  if ( (req as UserRequest).user &&  (req as UserRequest).user?.role === 'ADMIN') {
+  if ((req as UserRequest).user && (req as UserRequest).user?.role === 'ADMIN') {
     return next()
   } else {
-    return res.status(403).json({ message: "Unauthorized" })
+    return res.status(403).json({ message: 'Unauthorized' })
   }
 }

@@ -1,5 +1,5 @@
 import { Router } from 'express'
-import { getAllNotifications, markAsRead, removeNotifications } from '../../src/modules/notifications/notification.controller'
+import { getAllNotifications, markAsRead, removeNotifications } from '../modules/notifications/notification.controller'
 
 const notificationRouter = Router()
 

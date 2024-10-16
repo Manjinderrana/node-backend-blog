@@ -31,3 +31,6 @@ connectDB()
     logger.error(`Database connection error: ${err.message}`)
     process.exit(1)
   })
+  cron.schedule('*/5 * * * *', () => {
+    logger.info('Running scheduled job after every 5 minutes')
+  })

@@ -1,6 +1,5 @@
 export interface CustomError extends Error {
-    status?: number;
-    data?: any;
-    err?: any
+  status?: number
+  data?: any
+  err?: any
 }
-

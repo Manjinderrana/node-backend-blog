@@ -1,11 +1,13 @@
 import mongoose from 'mongoose'
-import { ApiError } from '../../src/utils/error'
+import { ApiError } from '../utils/error'
 import httpStatus from 'http-status'
 import { NextFunction, Request, Response } from 'express'
-import logger from '../../src/utils/logger'
+import logger from '../utils/logger'
 
 export const errorHandler = (err: ApiError, _req: Request, res: Response, _next: NextFunction) => {
-  logger.error(`${err?.stack}`)
+  if (process.env.NODE_ENV  === 'development') {
+    logger.error(`${err?.stack}`)
+  }
   return res.status(500).json({ message: 'Internal server error' })
 }
 

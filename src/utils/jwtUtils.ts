@@ -1,4 +1,4 @@
-import { IUser } from '../../src/modules/user/user.interface'
+import { IUser } from '../modules/user/user.interface'
 import jwt from 'jsonwebtoken'
 import { ApiError } from './error'
 

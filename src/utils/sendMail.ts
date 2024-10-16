@@ -4,7 +4,7 @@ import { ApiError } from './error'
 // import fs from "fs"
 // import ejs from "ejs"
 
-export const sendMail = async (email: string, subject: string, text: string,html: string) => {
+export const sendMail = async (email: string, subject: string, text: string, html: string) => {
   try {
     // if (!Maildata?.email) return
     // const templatePath = path.resolve("Templates", Maildata.HTMLtemplate)
@@ -27,7 +27,7 @@ export const sendMail = async (email: string, subject: string, text: string,html
       to: email,
       subject: subject,
       text: text,
-      html: html
+      html: html,
     })
   } catch (error: any) {
     throw new ApiError(error.status, `Error in sending mail:${error.message}`)

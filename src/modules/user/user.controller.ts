@@ -48,7 +48,7 @@ export const forgotPassword = wrap(async (req: Request, res: Response): Promise<
         <h1 style="font-size: 20px; letter-spacing: 2px; text-align:center;">${text}</h1>
    </div>`
 
-  sendMail(user?.email, subject,text, html)
+  sendMail(user?.email, subject, text, html)
 
   return res.status(200).json(new ApiResponse(200, {}, 'Mail sent successfully'))
 })
@@ -108,7 +108,7 @@ export const subscribe = wrap(async (req: Request, res: Response): Promise<Respo
   const user = await userService.findOne({ username }, '_id username email')
 
   if (userId.toString() == user?._id.toString()) {
-    throw new ApiError(409, "You cannot subscribe your channel")
+    throw new ApiError(409, 'You cannot subscribe your channel')
   }
 
   const alreadySubscriber = await subscriptionService.getOne({ $and: [{ subscribedToId: user?._id }, { subscriberId: userId }] })

@@ -1,5 +1,5 @@
-import validateRequest from '../../src/middlewares/validator'
-import permission from '../../src/middlewares/permissions'
+import validateRequest from '../middlewares/validator'
+import permission from '../middlewares/permissions'
 import {
   changePassword,
   forgotPassword,
@@ -11,7 +11,7 @@ import {
   updateUser,
   watchHistory,
   watchLater,
-} from '../../src/modules/user/user.controller'
+} from '../modules/user/user.controller'
 import { Router } from 'express'
 import {
   changePasswordValidate,
@@ -20,7 +20,7 @@ import {
   resetPasswordValidate,
   watchHistoryValidate,
   watchLaterValidate,
-} from '../../src/modules/user/user.validation'
+} from '../modules/user/user.validation'
 const router = Router()
 
 router.route('/changePassword/:id').patch(validateRequest(changePasswordValidate), changePassword)
