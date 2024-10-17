@@ -184,6 +184,7 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
   return res
     .status(200)
     .cookie('accessToken', newAccessToken, options)
+    .cookie('refreshToken', refreshToken, options)
     .json(
       new ApiResponse(
         200,

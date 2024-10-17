@@ -20,7 +20,7 @@ export const decodedRefreshToken = (token: string): any => {
 
 export const encryptAccessToken = (user: Partial<IUser>): string => {
   try {
-    return jwt.sign({ _id: user?._id }, process.env.ACCESS_TOKEN_SECRET || '', { expiresIn: '50m' })
+    return jwt.sign({ _id: user?._id }, process.env.ACCESS_TOKEN_SECRET || '', { expiresIn: '10m' })
   } catch (error) {
     throw new Error('Error in generating Token')
   }
