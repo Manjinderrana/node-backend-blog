@@ -13,9 +13,6 @@ connectDB()
     const server = httpServer.listen(process.env.PORT, () => {
       redisClient.connect()
       logger.info(`Server started on port http://localhost:${process.env.PORT}`)
-      cron.schedule('*/5 * * * *', () => {
-        // logger.info('Running scheduled job after every 5 minutes')
-      })
     })
 
     server.on('error', (err: NodeJS.ErrnoException) => {
