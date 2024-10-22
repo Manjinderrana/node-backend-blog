@@ -8,7 +8,7 @@ export const errorHandler = (err: ApiError, _req: Request, res: Response, _next:
   if (process.env.NODE_ENV  === 'development') {
     logger.error(`${err?.stack}`)
   }
-  return res.status(500).json({ message: 'Internal server error' })
+  return res.status(err?.status || 500).json({ message: err?.message || 'Internal server error' })
 }
 
 export const errorConverter = (err: any, _req: Request, _res: Response, next: NextFunction) => {

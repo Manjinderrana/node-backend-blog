@@ -20,7 +20,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
     throw new ApiError(400, 'All fields required')
   }
 
-  if (!(email?.endsWith('@gmail.com') || email?.endsWith('@thewitslab.com'))) {
+  if (!(email?.endsWith('@gmail.com') || email?.endsWith('@thewitslab.com') || email?.endsWith('@rgi.ac.in'))) {
     throw new ApiError(403, 'Wrong Domain')
   }
 
