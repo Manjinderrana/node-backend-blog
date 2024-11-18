@@ -6,7 +6,7 @@ const redisClient = createClient({
 })
 
 redisClient.on('connect', () => {
-  logger.info(`Redis connected at http://localhost:${process.env.REDIS_PORT}`)
+  logger.info(`Redis connected at http://redis:${process.env.REDIS_PORT}`)
 })
 
 redisClient.on('error', (err) => {
