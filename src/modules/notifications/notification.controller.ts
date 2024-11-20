@@ -3,7 +3,7 @@ import * as notificationService from '../../modules/notifications/notification.s
 import wrap from '../../utils/asyncHandler'
 import UserRequest from '../../utils/interface'
 import { ApiResponse } from '../../utils/response'
-import cron from "node-cron"
+import cron from 'node-cron'
 import logger from '../../utils/logger'
 
 export const getAllNotifications = wrap(async (req: Request, res: Response) => {

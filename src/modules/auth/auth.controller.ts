@@ -109,7 +109,7 @@ export const login = wrap(async (req: Request, res: Response): Promise<Response 
 
   const decoded = jwt.decode(refreshToken) as JwtPayload
 
-  await redisClient.set(refreshToken, 'whitelisted', { EX: decoded?.exp })
+  await redisClient.set('whitelisted', refreshToken, { EX: decoded?.exp })
 
   const options = {
     httpOnly: true,
@@ -159,21 +159,21 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
   if (refreshToken?.exp - currentTime < 3600) {
     newRefreshToken = jwt.sign({ _id: decoded?._id }, process.env.REFRESH_TOKEN_SECRET || '', { expiresIn: '7d' })
     const decode = decodedAccessToken(newRefreshToken) as JwtPayload
-    await redisClient.set(newRefreshToken, 'whitelisted', { EX: decode?.exp })
+    await redisClient.set('whitelisted', newRefreshToken, { EX: decode?.exp })
     return res
-    .status(200)
-    .cookie('accessToken', newAccessToken, { httpOnly: true, secure: true })
-    .cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true })
-    .json(
-      new ApiResponse(
-        200,
-        {
-          accessToken: newAccessToken,
-          refreshToken: newRefreshToken,
-        },
-        'Token Refreshed Successfully',
-      ),
-    )
+      .status(200)
+      .cookie('accessToken', newAccessToken, { httpOnly: true, secure: true })
+      .cookie('refreshToken', newRefreshToken, { httpOnly: true, secure: true })
+      .json(
+        new ApiResponse(
+          200,
+          {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          },
+          'Token Refreshed Successfully',
+        ),
+      )
   }
 
   const options = {
@@ -234,9 +234,9 @@ export const logout = wrap(async (req: Request, res: Response): Promise<void | R
 
   const refreshTtl = refreshDecoded?.exp - currentTime
 
-  await redisClient.set(accessToken, 'blacklisted', { EX: accessTtl })
+  await redisClient.set('blacklisted', accessToken, { EX: accessTtl })
 
-  await redisClient.set(refreshToken, 'blacklisted', { EX: refreshTtl })
+  await redisClient.set('blacklisted', refreshToken, { EX: refreshTtl })
 
   const options = {
     httpOnly: true,
