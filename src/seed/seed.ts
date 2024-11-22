@@ -5,8 +5,21 @@ import { CONSTANTS } from '../utils/constants'
 import Permissions from '../modules/rolePermissions/rolePermissions.model'
 import sendOTP from '../utils/sendOtp'
 import { IUser } from '../modules/user/user.interface'
+import * as notificationService from '../modules/notifications/notification.service'
+import cron from 'node-cron'
+import { monthAgo } from '../utils/date'
 
 const seed = async (): Promise<IUser | void> => {
+
+  cron.schedule('0 0 */30 * *', async () => {
+    try {
+      const deleted = await notificationService.deleteMany({ $and: [{ createdAt: { $lte: monthAgo } }, { isRead: true }] })
+      deleted?.deletedCount > 0 ? logger.info('Notification deleted successfully 30 days ago') : logger.info('No Notifications to delete')
+    } catch (error: any) {
+      logger.error(`Error while deleting notification: ${error?.stack}`)
+    }
+  })
+  
   const adminCredentials: Partial<IUser> = {
     username: process.env.ADMIN_NAME,
     email: process.env.ADMIN_EMAIL,

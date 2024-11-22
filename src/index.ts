@@ -1,11 +1,8 @@
 import logger from './utils/logger'
 import connectDB from './db/server'
 import httpServer from './app'
-import cron from 'node-cron'
 import redisClient from './utils/redisClient'
 import seed from './seed/seed'
-import * as notificationService from '../src/modules/notifications/notification.service'
-import { monthAgo } from './utils/date'
 
 connectDB()
   .then(() => {
@@ -30,14 +27,3 @@ connectDB()
     logger.error(`Database connection error: ${err.message}`)
     process.exit(1)
   })
-cron.schedule('*/5 * * * *', () => {
-  logger.info('Running scheduled job after every 5 minutes')
-})
-cron.schedule('0 0 */30 * *', async () => {
-  try {
-    const deleted = await notificationService.deleteMany({ $and: [{ createdAt: { $lte: monthAgo } }, { isRead: true }] })
-    deleted?.deletedCount > 0 ? logger.info('Notification deleted successfully 30 days ago') : logger.info('No Notifications to delete')
-  } catch (error: any) {
-    logger.error(`Error while deleting notification: ${error?.stack}`)
-  }
-})
