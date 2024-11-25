@@ -271,7 +271,7 @@ export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Respo
     Please click this link to verify your email, \n
     http://localhost:3000/api/v1/user/verifyMail`
 
-  const subject = 'ReSend OTP mail'
+  const subject = 'RESEND OTP MAIL'
 
   const html = `<div
   class="container"
