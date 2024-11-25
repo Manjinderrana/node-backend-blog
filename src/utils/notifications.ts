@@ -7,12 +7,6 @@ import { INotification } from '../modules/notifications/notification.interface'
 
 const sendNotifications = async (userId: ObjectId, blogId: ObjectId, userMessage?: string, adminMessage?: string): Promise<INotification> => {
   try {
-    // const notification = await notificationService.getNotification({ $and:[{userId: userId}, {blogId: blogId},{message: message}] })
-
-    // if (notification?.message === message) {
-    //   throw new ApiError(400, "Notification already exists")
-    // }
-
     const blog = await blogService.getBlog({ _id: blogId }, 'members author')
 
     const blogMembers = blog?.members.map((ele: customInterface) => ele?.memberId)
