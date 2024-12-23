@@ -199,7 +199,7 @@ const controller = {
   getBlog: wrap(async (req: Request, res: Response): Promise<Response | void> => {
     const { blogId } = req.params
 
-    const blog = await blogService.getBlog({ _id: blogId }, '_id title description author')
+    const blog = await blogService.getBlog({ _id: blogId }, '_id title image description author')
 
     if (!blog) {
       throw new ApiError(404, 'Blog not found')
@@ -519,6 +519,20 @@ const controller = {
     }
 
     return res.status(200).json(new ApiResponse(200, { filteredData }, 'Data fetched successfully'))
+  }),
+
+  getBlogBySorting: wrap(async (req: Request, res: Response): Promise<Response | void> => {
+    const { limit } = req.query
+    const { skip } = req.query
+
+    const filteredData = await blogService.find({}, '-members', Number(skip),  Number(limit))
+
+    if (filteredData?.length === 0) {
+      logger.error('data does not exist')
+      return res.status(400).json(new ApiError(404, 'Data not found'))
+    }
+
+    return res.status(200).json(new ApiResponse(200, { filteredData }, 'Data fetched in successfully'))
   }),
 }
 

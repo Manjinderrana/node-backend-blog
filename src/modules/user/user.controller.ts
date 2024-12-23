@@ -36,7 +36,7 @@ export const forgotPassword = wrap(async (req: Request, res: Response): Promise<
 
   const token = encryptAccessToken(user)
 
-  const text = `http://localhost:3000/user/reset-password/${token}}`
+  const text = `http://localhost:8000/user/reset-password/${token}}`
 
   const subject = 'forgot password reset'
 

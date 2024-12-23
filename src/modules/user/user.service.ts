@@ -24,7 +24,7 @@ export const aggregate = async (query: PipelineStage[]) => {
 
 export const find = async (searchQuery: customInterface, projection: string) => {
   return await User.find(searchQuery, projection)
-  // .populate("blogs")
+  .populate("blogs")
 }
 
 export interface customInterface {

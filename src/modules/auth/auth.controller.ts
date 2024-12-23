@@ -12,6 +12,7 @@ import * as notificationService from '../../modules/notifications/notification.s
 import sendOTP from '../../utils/sendOtp'
 import { generateAvatarUrl } from '../../utils/generateAvatarUrl'
 import wrap from '../../utils/asyncHandler'
+import { RESPONSE } from '../../utils/constants'
 
 export const register = wrap(async (req: Request, res: Response): Promise<void | Response> => {
   const { username, email, password } = req.body as IUser
@@ -21,13 +22,13 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
   }
 
   if (!(email?.endsWith('@gmail.com') || email?.endsWith('@thewitslab.com') || email?.endsWith('@rgi.ac.in'))) {
-    throw new ApiError(403, 'Wrong Domain')
+    throw new ApiError(403, RESPONSE.WRONG_DOMAIN)
   }
 
   const existingUser = await userService.findOne({ $or: [{ email }, { username }] }, 'id username email')
 
   if (existingUser) {
-    throw new ApiError(400, 'User with username or email already exists ')
+    throw new ApiError(400, RESPONSE.USER_WITH_EMAIL_ALREADY_EXISTS)
   }
 
   const otp = sendOTP()
@@ -65,7 +66,7 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
 
   const text = `Your OTP is ${otp} \n
       Please click this link to verify your email by entering the otp, \n
-      http://localhost:3000/api/v1/user/verifyMail`
+      http://localhost:5173/verify-otp`
 
   const subject = 'Email verification mail'
 
@@ -83,24 +84,24 @@ export const register = wrap(async (req: Request, res: Response): Promise<void |
   return res
     .status(201)
     .cookie('accessToken', Authorization)
-    .json(new ApiResponse(201, { data: registeredUser, setCookie: Authorization }, 'User Registered Successfully'))
+    .json(new ApiResponse(201, { data: registeredUser, setCookie: Authorization }, RESPONSE.USER_REGISTERED_SUCCESSFULLY))
 })
 
 export const login = wrap(async (req: Request, res: Response): Promise<Response | void> => {
   const { email, password } = req.body
 
-  const existingUser = await userService.findOne({ email }, 'id username email password isVerified')
+  const existingUser = await userService.findOne({ email }, '_id username email password isVerified image')
 
   if (!existingUser) {
-    throw new ApiError(404, 'User does not exist')
+    throw new ApiError(404, RESPONSE.USER_DOES_NOT_EXISTS)
   }
 
-  if (!existingUser?.isVerified) return res.status(400).json(new ApiResponse(400, {}, 'Your account is not verified'))
+  if (!existingUser?.isVerified) return res.status(400).json(new ApiResponse(400, {}, RESPONSE.ACCOUNT_NOT_VERIFIED))
 
   const isPasswordCorrect = await bcrypt.compare(password, existingUser?.password || '')
 
   if (!isPasswordCorrect) {
-    throw new ApiError(401, 'unauthorized access')
+    throw new ApiError(401, RESPONSE.UNAUTHORIZED)
   }
 
   const accessToken = encryptAccessToken(existingUser)
@@ -116,7 +117,7 @@ export const login = wrap(async (req: Request, res: Response): Promise<Response 
     secure: true,
   }
 
-  const loggedInUser = await userService.findOne({ email }, ' id username email role ')
+  const loggedInUser = await userService.findOne({ email }, '_id username email role isVerified')
 
   return res
     .status(200)
@@ -131,7 +132,7 @@ export const login = wrap(async (req: Request, res: Response): Promise<Response 
           accessToken,
           refreshToken,
         },
-        'User loggedIn successfully',
+        RESPONSE.USER_LOGGED_IN_SUCCESSFULLY,
       ),
     )
 })
@@ -146,7 +147,7 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
   const token = await redisClient.get(refreshToken)
 
   if (token == 'blacklisted') {
-    throw new ApiError(401, 'Access denied')
+    throw new ApiError(401, RESPONSE.ACCESS_DENIED)
   }
 
   const decoded = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET || '') as JwtPayload
@@ -155,7 +156,7 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
 
   const currentTime = Math.floor(Date.now() / 1000)
 
-  let newRefreshToken
+  let newRefreshToken: string
   if (refreshToken?.exp - currentTime < 3600) {
     newRefreshToken = jwt.sign({ _id: decoded?._id }, process.env.REFRESH_TOKEN_SECRET || '', { expiresIn: '7d' })
     const decode = decodedAccessToken(newRefreshToken) as JwtPayload
@@ -192,7 +193,7 @@ export const refreshController = wrap(async (req: Request, res: Response): Promi
           accessToken: newAccessToken,
           refreshToken,
         },
-        'Token Refreshed Successfully',
+        RESPONSE.TOKEN_REFRESHED_SUCCESSFULLY,
       ),
     )
 })
@@ -202,21 +203,19 @@ export const verifyMail = wrap(async (req: Request, res: Response): Promise<void
 
   const user = await userService.findOne({ otp }, '_id username email otp otp_expiration isVerified')
 
-  if (!user) {
-    throw new ApiError(400, 'Invalid OTP')
-  }
+  if (!user) throw new ApiError(400, RESPONSE.INVALID_OTP)
 
-  if (user?.isVerified === true) throw new ApiError(400, 'User already verified')
+  if (user?.isVerified === true) throw new ApiError(400, RESPONSE.USER_ALREADY_VERIFIED)
 
-  if (user?.otp != otp) throw new ApiError(400, 'Invalid otp')
+  if (user?.otp != otp) throw new ApiError(400, RESPONSE.INVALID_OTP)
 
-  if (user?.otp_expiration < new Date(Date.now())) throw new ApiError(400, 'OTP expired')
+  if (user?.otp_expiration < new Date(Date.now())) throw new ApiError(400, RESPONSE.OTP_EXPIRED)
 
   user.isVerified = true
 
   await user.save()
 
-  return res.status(200).json(new ApiResponse(200, user, 'Email verified successfully'))
+  return res.status(200).json(new ApiResponse(200, user, RESPONSE.EMAIL_VERIFIED))
 })
 
 export const logout = wrap(async (req: Request, res: Response): Promise<void | Response> => {
@@ -247,7 +246,7 @@ export const logout = wrap(async (req: Request, res: Response): Promise<void | R
     .status(200)
     .clearCookie('accessToken', options)
     .clearCookie('refreshToken', options)
-    .json(new ApiResponse(200, {}, 'user logged out successfully'))
+    .json(new ApiResponse(200, {}, RESPONSE.USER_LOGGED_OUT_SUCCESSFULLY))
 })
 
 export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Response | void> => {
@@ -256,7 +255,7 @@ export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Respo
   const existingUser = await userService.findOne({ email }, '_id email otp otp_expiration')
 
   if (!existingUser) {
-    throw new ApiError(404, 'User not found')
+    throw new ApiError(404, RESPONSE.USER_NOT_FOUND)
   }
 
   const otp = sendOTP()
@@ -269,7 +268,7 @@ export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Respo
 
   const text = `Your OTP is ${otp} \n
     Please click this link to verify your email, \n
-    http://localhost:3000/api/v1/user/verifyMail`
+    http://localhost:5173/verify-otp`
 
   const subject = 'RESEND OTP MAIL'
 
@@ -285,5 +284,5 @@ export const reSendOTP = wrap(async (req: Request, res: Response): Promise<Respo
 
   sendMail(existingUser?.email, subject, text, html)
 
-  return res.status(200).json(new ApiResponse(200, existingUser, 'OTP resend successfully'))
+  return res.status(200).json(new ApiResponse(200, existingUser, RESPONSE.OTP_RESEND))
 })

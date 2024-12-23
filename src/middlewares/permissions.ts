@@ -23,7 +23,6 @@ const permission = (roles: string[]) => {
 
 export default permission
 
-// Middleware to check if user is admin
 export const isAdmin = (req: Request, res: Response, next: NextFunction) => {
   if ((req as UserRequest).user && (req as UserRequest).user?.role === 'ADMIN') {
     return next()
