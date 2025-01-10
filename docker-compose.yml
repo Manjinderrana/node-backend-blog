@@ -3,17 +3,19 @@ version: '3.8'
 services:
   app:
     container_name: backend-server
+    restart: always
     build: .
+    environment:
+      - MONGO_URI=mongodb://mongodb:27018
+      - PORT=8000
     ports:
-      - '1026:3000'
-    depends_on:
-      - mongo
+      - 8000:8000    
 
   mongo:
     container_name: database
     image: mongo
     ports:
-      - '27017:27017'
+      - '27018:27018'
 
   redis:
     container_name: redis

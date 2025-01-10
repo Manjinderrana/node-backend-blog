@@ -1,5 +1,5 @@
 import validateRequest from '../middlewares/validator'
-import permission from '../middlewares/permissions'
+import { permission } from '../middlewares/permissions'
 import {
   changePassword,
   forgotPassword,
