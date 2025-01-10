@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import controller from '../modules/blogs/blog.controller'
 import upload from '../middlewares/multer'
-import permission from '../middlewares/permissions'
+import { permission } from '../middlewares/permissions'
 
 const blogrouter = Router()
 
