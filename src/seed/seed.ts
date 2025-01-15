@@ -50,7 +50,7 @@ const seed = async (): Promise<IUser | void> => {
     <p style="margin-bottom: 30px;">Please enter the sign up OTP to get started</p>
     <p style="margin-bottom: 30px;">${text}</p>
     <button><div class="jumbotron text-center text-primary">
-    <a href="http://localhost:3000/api/v1/user/verifyMail" class="btn btn-danger"><span class="fa fa-google"></span>Click here</a></button>
+    <a href="http://localhost:5173/verify-otp" class="btn btn-danger"><span class="fa fa-google"></span>Click here</a></button>
     </div>`
 
     sendMail(adminCredentials?.email as string, subject, text, html)
